@@ -58,7 +58,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { httpOnly: true, sameSite: "lax", secure: false }
 }));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(__dirname));
 
 function requireAuth(req, res, next) {
   if (!req.session.user) return res.status(401).json({ error: "غير مسجل الدخول" });
