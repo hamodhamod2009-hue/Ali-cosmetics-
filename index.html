@@ -4,25 +4,27 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#111827">
-<title>Ali Cosmetics</title>
+<title>Ali Cosmetics Pro v4</title>
 <style>
-:root{--dark:#111827;--bg:#f5f6f8;--card:#fff;--muted:#6b7280;--danger:#b91c1c;--good:#047857;--blue:#2563eb}
+:root{--dark:#111827;--bg:#f5f6f8;--card:#fff;--muted:#6b7280;--danger:#b91c1c;--good:#047857;--blue:#2563eb;--warn:#b45309}
 *{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;background:var(--bg);margin:0;color:#222}
 header{background:var(--dark);color:#fff;padding:18px}header h1{margin:0 0 4px}
-main{max-width:1100px;margin:auto;padding:14px}.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+main{max-width:1200px;margin:auto;padding:14px}.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
 .grid,.stats,.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-label{display:block;font-size:13px;font-weight:bold;margin:6px 0}input,select,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccc;font-size:16px}
-button{background:var(--dark);color:#fff;border:0;font-weight:bold;margin-top:10px;cursor:pointer}.danger{background:var(--danger)}.good{background:var(--good)}
+label{display:block;font-size:13px;font-weight:bold;margin:6px 0}input,select,textarea,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccc;font-size:16px}textarea{min-height:80px;resize:vertical}
+button{background:var(--dark);color:#fff;border:0;font-weight:bold;margin-top:10px;cursor:pointer}.danger{background:var(--danger)}.good{background:var(--good)}.blue{background:var(--blue)}.warn{background:var(--warn)}
 .hidden{display:none!important}.nav{display:flex;gap:8px;overflow:auto;margin-bottom:14px}.nav button{background:#fff;color:#111;border:1px solid #ccc;white-space:nowrap;min-width:max-content;margin:0}
-.nav button.active{background:var(--dark);color:#fff}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:9px;border-bottom:1px solid #eee;text-align:right}
-th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13px}.stat{font-size:24px;font-weight:bold;margin-top:4px}.goodText{color:var(--good)}
-.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px}.row-actions{display:flex;gap:6px}.row-actions button{padding:7px 10px;margin:0;width:auto;font-size:13px}
-#login{max-width:420px;margin:10vh auto}@media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.nav button.active{background:var(--dark);color:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:9px;border-bottom:1px solid #eee;text-align:right;vertical-align:top}
+th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}.muted{color:var(--muted);font-size:13px}.stat{font-size:23px;font-weight:bold;margin-top:4px}.goodText{color:var(--good)}.dangerText{color:var(--danger)}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px}.row-actions{display:flex;gap:6px;flex-wrap:wrap}.row-actions button{padding:7px 10px;margin:0;width:auto;font-size:13px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:bold}.paid{background:#d1fae5;color:#065f46}.partial{background:#fef3c7;color:#92400e}.unpaid{background:#fee2e2;color:#991b1b}
+.req{color:var(--danger)}#login{max-width:420px;margin:10vh auto}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
 <body>
 <div id="login" class="card">
-<h1>Ali Cosmetics</h1><p class="muted">نظام إدارة المنتجات والمخزون والمبيعات</p>
+<h1>Ali Cosmetics Pro v4</h1><p class="muted">نظام المنتجات والمخزون والمبيعات والزبائن والديون</p>
 <label>اسم المستخدم</label><input id="u" value="admin">
 <label>كلمة المرور</label><input id="pw" type="password" value="admin123">
 <button onclick="login()">تسجيل الدخول</button><p id="err" class="muted"></p>
@@ -30,12 +32,15 @@ th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13
 </div>
 
 <div id="app" class="hidden">
-<header><h1>Ali Cosmetics</h1><small>إدارة المنتجات والمخزون والمبيعات والتقارير</small></header>
+<header><h1>Ali Cosmetics Pro v4</h1><small>إدارة المنتجات والمخزون والمبيعات والزبائن وديون التجار والتقارير</small></header>
 <main>
 <div class="nav">
 <button class="active" onclick="tab('home',this)">الرئيسية</button>
 <button onclick="tab('products',this)">المنتجات والمخزون</button>
 <button onclick="tab('sales',this)">المبيعات</button>
+<button onclick="tab('debts',this)">قائمة الديون</button>
+<button onclick="tab('payments',this)">المدفوعات</button>
+<button onclick="tab('suppliers',this)">حسابات التجار</button>
 <button onclick="tab('reports',this)">التقارير والأرباح</button>
 <button onclick="location.reload()">خروج</button>
 </div>
@@ -44,12 +49,13 @@ th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13
 <div class="stats">
 <div class="card"><div class="muted">عدد المنتجات</div><div id="sp" class="stat">0</div></div>
 <div class="card"><div class="muted">إجمالي المخزون</div><div id="stockQty" class="stat">0</div></div>
-<div class="card"><div class="muted">القطع المباعة</div><div id="soldQty" class="stat">0</div></div>
 <div class="card"><div class="muted">عمليات البيع</div><div id="ss" class="stat">0</div></div>
+<div class="card"><div class="muted">ديون الزبائن</div><div id="homeDebt" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">المطلوب للتجار</div><div id="homeSupplierDebt" class="stat dangerText">0</div></div>
 </div>
 <div class="card"><h2>ملخص سريع</h2>
-<p>أضف المنتجات وسعر الشراء والبيع والكمية، ثم سجل المبيعات. يتم خصم المخزون وحساب التكلفة والربح تلقائياً.</p>
-<p class="note">البيانات محفوظة في متصفح الجهاز. استخدم النسخة الاحتياطية بصورة منتظمة.</p></div>
+<p>كل عملية بيع تحتاج اسم زبون إجباري. إذا لم يُدفع المبلغ بالكامل تظهر الفاتورة تلقائياً في قائمة الديون، وعند إكمال الدفع تصبح مدفوعة بالكامل.</p>
+<p class="note">البيانات محفوظة في متصفح الجهاز. نزّل نسخة احتياطية بصورة منتظمة، خصوصاً قبل أي تحديث.</p></div>
 </section>
 
 <section id="products" class="hidden">
@@ -67,37 +73,102 @@ th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13
 </section>
 
 <section id="sales" class="hidden">
-<div class="card"><h2>تسجيل بيع</h2><div class="grid">
+<div class="card"><h2>تسجيل بيع جديد</h2><div class="grid">
+<div><label>اسم الزبون <span class="req">*</span></label><input id="customerName" placeholder="إجباري"></div>
+<div><label>رقم الهاتف</label><input id="customerPhone" inputmode="tel" placeholder="اختياري"></div>
 <div><label>المنتج</label><select id="spick"></select></div>
-<div><label>الكمية</label><input id="sqty" type="number" min="1" value="1"></div>
+<div><label>الكمية</label><input id="sqty" type="number" min="1" value="1" oninput="previewSale()"></div>
 <div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
-</div><button onclick="sale()">تسجيل البيع</button><p id="sm" class="muted"></p></div>
-<div class="card"><h2>سجل المبيعات</h2><div class="wrap"><table>
-<thead><tr><th>الوقت</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>التكلفة</th><th>الربح</th><th>العملة</th><th>الإجراء</th></tr></thead><tbody id="sb"></tbody>
+<div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div>
+<div><label>تاريخ استحقاق الدين</label><input id="dueDate" type="date"></div>
+<div><label>ملاحظات</label><input id="saleNote" placeholder="اختياري"></div>
+</div>
+<div id="salePreview" class="note" style="margin-top:12px">اختر المنتج والكمية لعرض الإجمالي.</div>
+<button onclick="sale()">تسجيل الفاتورة</button><p id="sm" class="muted"></p></div>
+<div class="card"><div class="section-title"><h2>سجل الفواتير</h2><input id="salesSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو رقم الفاتورة" oninput="renderSales()"></div><div class="wrap"><table>
+<thead><tr><th>الفاتورة</th><th>الوقت</th><th>الزبون</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="sb"></tbody>
+</table></div></div>
+</section>
+
+<section id="debts" class="hidden">
+<div class="stats">
+<div class="card"><div class="muted">عدد الفواتير المطلوبة</div><div id="debtCount" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي الديون</div><div id="debtTotal" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">عدد الزبائن المطلوبين</div><div id="debtCustomers" class="stat">0</div></div>
+<div class="card"><div class="muted">الديون المتأخرة</div><div id="overdueTotal" class="stat dangerText">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>قائمة الديون</h2><input id="debtSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو الهاتف أو الفاتورة" oninput="renderDebts()"></div><div class="wrap"><table>
+<thead><tr><th>الفاتورة</th><th>الزبون</th><th>الهاتف</th><th>تاريخ البيع</th><th>الاستحقاق</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>تسجيل دفعة</th></tr></thead><tbody id="debtBody"></tbody>
+</table></div></div>
+<div class="card"><h2>ملخص الديون حسب الزبون</h2><div class="wrap"><table>
+<thead><tr><th>الزبون</th><th>الهاتف</th><th>عدد الفواتير</th><th>إجمالي المتبقي</th></tr></thead><tbody id="customerDebtBody"></tbody>
+</table></div></div>
+</section>
+
+<section id="payments" class="hidden">
+<div class="stats">
+<div class="card"><div class="muted">عدد الدفعات</div><div id="paymentCount" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي المبالغ المستلمة</div><div id="paymentTotal" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">فواتير مدفوعة بالكامل</div><div id="paidInvoiceCount" class="stat">0</div></div>
+<div class="card"><div class="muted">فواتير مدفوعة جزئياً</div><div id="partialInvoiceCount" class="stat">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>سجل المدفوعات</h2><input id="paymentSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو الفاتورة" oninput="renderPayments()"></div><div class="wrap"><table>
+<thead><tr><th>تاريخ الدفع</th><th>الفاتورة</th><th>الزبون</th><th>المبلغ</th><th>العملة</th><th>ملاحظة</th></tr></thead><tbody id="paymentBody"></tbody>
+</table></div></div>
+</section>
+
+
+<section id="suppliers" class="hidden">
+<div class="card"><h2>إضافة حساب تاجر</h2><p class="muted">هذا القسم مستقل عن الزبائن والمبيعات، ويسجل المبالغ التي يطلبها التجار من المحل.</p><div class="grid">
+<div><label>اسم التاجر <span class="req">*</span></label><input id="supplierName"></div>
+<div><label>رقم الهاتف</label><input id="supplierPhone" inputmode="tel"></div>
+<div><label>المبلغ الأصلي <span class="req">*</span></label><input id="supplierAmount" type="number" min="0.01" step=".01"></div>
+<div><label>المدفوع أولاً</label><input id="supplierPaid" type="number" min="0" step=".01" value="0"></div>
+<div><label>العملة</label><select id="supplierCur"><option>AUD</option><option>USD</option><option>IQD</option></select></div>
+<div><label>تاريخ الدين</label><input id="supplierDate" type="date"></div>
+<div><label>تاريخ الاستحقاق</label><input id="supplierDue" type="date"></div>
+<div><label>ملاحظات</label><input id="supplierNote"></div>
+</div><button onclick="addSupplierDebt()">إضافة حساب التاجر</button><p id="supplierMsg" class="muted"></p></div>
+<div class="stats">
+<div class="card"><div class="muted">إجمالي ديون التجار</div><div id="supplierTotal" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">إجمالي ما دفعه المحل</div><div id="supplierPaidTotal" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبلغ المتبقي</div><div id="supplierRemaining" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">عدد التجار المطلوبين</div><div id="supplierCount" class="stat">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>حسابات التجار الحالية</h2><input id="supplierSearch" style="max-width:340px" placeholder="بحث باسم التاجر أو الهاتف" oninput="renderSuppliers()"></div><div class="wrap"><table>
+<thead><tr><th>التاجر</th><th>الهاتف</th><th>تاريخ الدين</th><th>الاستحقاق</th><th>المبلغ الأصلي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="supplierBody"></tbody>
+</table></div></div>
+<div class="card"><h2>تقرير دفعات التجار</h2><div class="filters">
+<div><label>من تاريخ</label><input id="supplierFrom" type="date"></div>
+<div><label>إلى تاريخ</label><input id="supplierTo" type="date"></div>
+<div><button onclick="renderSupplierReport()">عرض التقرير</button></div>
+<div><button class="blue" onclick="clearSupplierRange()">كل الفترات</button></div>
+</div><div class="stats">
+<div class="card"><div class="muted">المدفوع ضمن الفترة</div><div id="supplierReportPaid" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">عدد الدفعات</div><div id="supplierReportCount" class="stat">0</div></div>
+</div><div class="wrap"><table>
+<thead><tr><th>تاريخ الدفع</th><th>التاجر</th><th>المبلغ</th><th>العملة</th><th>ملاحظة</th></tr></thead><tbody id="supplierPaymentBody"></tbody>
 </table></div></div>
 </section>
 
 <section id="reports" class="hidden">
 <div class="card"><h2>التقارير والأرباح</h2><div class="filters">
-<div><label>نوع التقرير</label><select id="reportType" onchange="setReportRange()">
-<option value="daily">يومي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">فترة مخصصة</option><option value="all">كل المبيعات</option>
-</select></div>
+<div><label>نوع التقرير</label><select id="reportType" onchange="setReportRange()"><option value="daily">يومي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">فترة مخصصة</option><option value="all">كل المبيعات</option></select></div>
 <div><label>من تاريخ</label><input id="fromDate" type="date"></div>
 <div><label>إلى تاريخ</label><input id="toDate" type="date"></div>
 <div><button onclick="renderReports()">عرض التقرير</button></div>
 </div></div>
-
 <div class="stats">
 <div class="card"><div class="muted">إجمالي المبيعات</div><div id="rRevenue" class="stat">0</div></div>
 <div class="card"><div class="muted">تكلفة البضاعة</div><div id="rCost" class="stat">0</div></div>
 <div class="card"><div class="muted">صافي الربح</div><div id="rProfit" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبالغ المستلمة</div><div id="rReceived" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبالغ المتبقية</div><div id="rRemaining" class="stat dangerText">0</div></div>
 <div class="card"><div class="muted">القطع المباعة</div><div id="rQty" class="stat">0</div></div>
 </div>
-
 <div class="card"><h2>تفاصيل التقرير</h2><div id="reportCaption" class="muted"></div><div class="wrap"><table>
-<thead><tr><th>التاريخ</th><th>المنتج</th><th>الكمية</th><th>المبيعات</th><th>التكلفة</th><th>الربح</th><th>العملة</th></tr></thead><tbody id="reportBody"></tbody>
+<thead><tr><th>الفاتورة</th><th>التاريخ</th><th>الزبون</th><th>المنتج</th><th>الكمية</th><th>المبيعات</th><th>التكلفة</th><th>الربح</th><th>المدفوع</th><th>المتبقي</th><th>العملة</th></tr></thead><tbody id="reportBody"></tbody>
 </table></div></div>
-
 <div class="card"><h2>نسخة احتياطية</h2><div class="grid">
 <button class="good" onclick="exportData()">تنزيل نسخة احتياطية</button>
 <div><label>استرجاع نسخة</label><input type="file" accept=".json,application/json" onchange="importData(event)"></div>
@@ -108,27 +179,79 @@ th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13
 
 <script>
 const KEY='ali_cosmetics', $=id=>document.getElementById(id);let d=load();
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"sales":[]}');x.products=Array.isArray(x.products)?x.products:[];x.sales=Array.isArray(x.sales)?x.sales:[];
-x.sales=x.sales.map((s,i)=>{const q=Number(s.q)||0,total=Number(s.total)||0,p=x.products.find(p=>p.n===s.n),unitBuy=Number.isFinite(Number(s.unitBuy))?Number(s.unitBuy):(p?Number(p.b)||0:0),cost=Number.isFinite(Number(s.cost))?Number(s.cost):q*unitBuy,profit=Number.isFinite(Number(s.profit))?Number(s.profit):total-cost;let iso=s.iso||'';if(!iso&&s.t){const a=new Date(s.t);if(!isNaN(a))iso=a.toISOString()}if(!iso)iso=new Date().toISOString();return {...s,id:s.id||Date.now()+i,iso,q,total,unitBuy,cost,profit,cur:s.cur||'AUD'}});return x}catch{return {products:[],sales:[]}}}
+function load(){
+ try{
+  const x=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"sales":[],"payments":[],"supplierDebts":[],"supplierPayments":[],"nextInvoice":1001}');
+  x.products=Array.isArray(x.products)?x.products:[];x.sales=Array.isArray(x.sales)?x.sales:[];x.payments=Array.isArray(x.payments)?x.payments:[];x.supplierDebts=Array.isArray(x.supplierDebts)?x.supplierDebts:[];x.supplierPayments=Array.isArray(x.supplierPayments)?x.supplierPayments:[];
+  x.sales=x.sales.map((s,i)=>{
+   const q=Number(s.q)||0,total=Number(s.total)||0,p=x.products.find(p=>p.n===s.n),unitBuy=Number.isFinite(Number(s.unitBuy))?Number(s.unitBuy):(p?Number(p.b)||0:0),cost=Number.isFinite(Number(s.cost))?Number(s.cost):q*unitBuy,profit=Number.isFinite(Number(s.profit))?Number(s.profit):total-cost;
+   let iso=s.iso||'';if(!iso&&s.t){const a=new Date(s.t);if(!isNaN(a))iso=a.toISOString()}if(!iso)iso=new Date().toISOString();
+   const paid=Number.isFinite(Number(s.paid))?Math.max(0,Math.min(total,Number(s.paid))):total;
+   return {...s,id:s.id||Date.now()+i,invoiceNo:Number(s.invoiceNo)||1001+i,iso,q,total,unitBuy,cost,profit,cur:s.cur||'AUD',customerName:s.customerName||'زبون قديم',customerPhone:s.customerPhone||'',paid,remaining:Math.max(0,total-paid),dueDate:s.dueDate||'',note:s.note||''};
+  });
+  if(!x.payments.length){x.sales.forEach(s=>{if(s.paid>0)x.payments.push({id:s.id+1,saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount:s.paid,cur:s.cur,iso:s.iso,note:'دفعة مسجلة من النسخة السابقة'})})}
+  const maxInv=x.sales.reduce((m,s)=>Math.max(m,Number(s.invoiceNo)||0),1000);x.nextInvoice=Math.max(Number(x.nextInvoice)||1001,maxInv+1);return x;
+ }catch{return {products:[],sales:[],payments:[],supplierDebts:[],supplierPayments:[],nextInvoice:1001}}
+}
 function save(){localStorage.setItem(KEY,JSON.stringify(d));render()}
 function login(){if($('u').value.trim()==='admin'&&$('pw').value==='admin123'){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('err').textContent='';setSaleDate();setReportRange();render()}else $('err').textContent='بيانات الدخول غير صحيحة'}
-function tab(id,b){['home','products','sales','reports'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports()}
+function tab(id,b){['home','products','sales','debts','payments','suppliers','reports'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports();if(id==='debts')renderDebts();if(id==='payments')renderPayments();if(id==='suppliers'){setSupplierDate();renderSuppliers();renderSupplierReport()}}
 function addProduct(){const n=$('name').value.trim(),c=$('cat').value.trim(),b=Number($('buy').value),s=Number($('sell').value),q=Number($('qty').value);if(!n||!Number.isFinite(b)||!Number.isFinite(s)||!Number.isInteger(q)||b<0||s<0||q<0){$('pm').textContent='أدخل البيانات بشكل صحيح';return}d.products.push({id:Date.now(),n,c,b,s,q,cur:$('cur').value});['name','cat','buy','sell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة المنتج';save()}
 function delProduct(id){if(confirm('حذف المنتج؟')){d.products=d.products.filter(p=>p.id!==id);save()}}
-function sale(){const p=d.products.find(x=>x.id==Number($('spick').value)),q=Number($('sqty').value),dt=new Date($('saleDate').value);if(!p||!Number.isInteger(q)||q<1||q>p.q||isNaN(dt)){$('sm').textContent='الكمية أو التاريخ غير صحيح';return}const total=q*p.s,cost=q*p.b;p.q-=q;d.sales.unshift({id:Date.now(),iso:dt.toISOString(),t:fmtDate(dt),n:p.n,productId:p.id,q,total,cost,profit:total-cost,unitBuy:p.b,unitSell:p.s,cur:p.cur});$('sm').textContent='تم تسجيل البيع وحساب الربح';$('sqty').value=1;setSaleDate();save()}
-function delSale(id){const s=d.sales.find(x=>x.id===id);if(!s)return;if(confirm('حذف عملية البيع وإرجاع الكمية للمخزون؟')){const p=d.products.find(p=>p.id===s.productId)||d.products.find(p=>p.n===s.n);if(p)p.q+=Number(s.q)||0;d.sales=d.sales.filter(x=>x.id!==id);save()}}
+function currentSaleValues(){const p=d.products.find(x=>x.id==Number($('spick').value)),q=Number($('sqty').value)||0,total=p?q*Number(p.s||0):0,paid=Math.max(0,Number($('paidNow').value)||0);return {p,q,total,paid,remaining:Math.max(0,total-paid)}}
+function previewSale(){if(!$('salePreview'))return;const v=currentSaleValues();if(!v.p){$('salePreview').textContent='لا توجد منتجات متاحة.';return}$('salePreview').innerHTML=`الإجمالي: <b>${money(v.total,v.p.cur)}</b> — المدفوع: <b>${money(Math.min(v.paid,v.total),v.p.cur)}</b> — المتبقي: <b>${money(v.remaining,v.p.cur)}</b>`}
+function sale(){
+ const customerName=$('customerName').value.trim(),customerPhone=$('customerPhone').value.trim(),p=d.products.find(x=>x.id==Number($('spick').value)),q=Number($('sqty').value),dt=new Date($('saleDate').value),paidRaw=Number($('paidNow').value),dueDate=$('dueDate').value,note=$('saleNote').value.trim();
+ if(!customerName){$('sm').textContent='اسم الزبون إجباري';$('customerName').focus();return}
+ if(!p||!Number.isInteger(q)||q<1||q>p.q||isNaN(dt)||!Number.isFinite(paidRaw)||paidRaw<0){$('sm').textContent='تحقق من المنتج والكمية والتاريخ والمبلغ المدفوع';return}
+ const total=q*p.s;if(paidRaw>total){$('sm').textContent='المبلغ المدفوع لا يمكن أن يكون أكبر من إجمالي الفاتورة';return}
+ if(paidRaw<total&&!dueDate){$('sm').textContent='حدد تاريخ استحقاق الدين';return}
+ const cost=q*p.b,id=Date.now(),invoiceNo=d.nextInvoice++;p.q-=q;
+ const s={id,invoiceNo,iso:dt.toISOString(),t:fmtDate(dt),customerName,customerPhone,n:p.n,productId:p.id,q,total,cost,profit:total-cost,unitBuy:p.b,unitSell:p.s,cur:p.cur,paid:paidRaw,remaining:total-paidRaw,dueDate:paidRaw<total?dueDate:'',note};d.sales.unshift(s);
+ if(paidRaw>0)d.payments.unshift({id:id+1,saleId:id,invoiceNo,customerName,amount:paidRaw,cur:p.cur,iso:dt.toISOString(),note:'دفعة عند تسجيل الفاتورة'});
+ $('sm').textContent=`تم تسجيل الفاتورة رقم ${invoiceNo}`;['customerName','customerPhone','saleNote'].forEach(x=>$(x).value='');$('paidNow').value=0;$('sqty').value=1;$('dueDate').value='';setSaleDate();save()
+}
+function delSale(id){const s=d.sales.find(x=>x.id===id);if(!s)return;if(confirm('حذف الفاتورة وإرجاع الكمية للمخزون وحذف دفعاتها؟')){const p=d.products.find(p=>p.id===s.productId)||d.products.find(p=>p.n===s.n);if(p)p.q+=Number(s.q)||0;d.sales=d.sales.filter(x=>x.id!==id);d.payments=d.payments.filter(x=>x.saleId!==id);save()}}
+function addPayment(id){const s=d.sales.find(x=>x.id===id);if(!s||s.remaining<=0)return;const raw=prompt(`المتبقي على الفاتورة ${s.invoiceNo}: ${money(s.remaining,s.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>s.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';s.paid=Number(s.paid||0)+amount;s.remaining=Math.max(0,s.total-s.paid);if(s.remaining===0)s.dueDate='';d.payments.unshift({id:Date.now(),saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount,cur:s.cur,iso:new Date().toISOString(),note});save();alert(s.remaining===0?'تم تسديد الفاتورة بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
+
+function setSupplierDate(){if(!$('supplierDate'))return;const today=ymd(new Date());if(!$('supplierDate').value)$('supplierDate').value=today}
+function addSupplierDebt(){
+ const name=$('supplierName').value.trim(),phone=$('supplierPhone').value.trim(),amount=Number($('supplierAmount').value),paid=Number($('supplierPaid').value||0),cur=$('supplierCur').value,date=$('supplierDate').value||ymd(new Date()),due=$('supplierDue').value,note=$('supplierNote').value.trim();
+ if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount){$('supplierMsg').textContent='تحقق من اسم التاجر والمبلغ والمدفوع';return}
+ const id=Date.now(),row={id,name,phone,amount,paid,remaining:amount-paid,cur,date,due,note};d.supplierDebts.unshift(row);
+ if(paid>0)d.supplierPayments.unshift({id:id+1,debtId:id,name,amount:paid,cur,iso:new Date(date+'T12:00:00').toISOString(),note:'دفعة عند إضافة الحساب'});
+ ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote'].forEach(x=>$(x).value='');$('supplierPaid').value=0;$('supplierMsg').textContent='تمت إضافة حساب التاجر';setSupplierDate();save()
+}
+function addSupplierPayment(id){const x=d.supplierDebts.find(v=>v.id===id);if(!x||x.remaining<=0)return;const raw=prompt(`المتبقي للتاجر ${x.name}: ${money(x.remaining,x.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>x.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';x.paid=Number(x.paid||0)+amount;x.remaining=Math.max(0,x.amount-x.paid);d.supplierPayments.unshift({id:Date.now(),debtId:x.id,name:x.name,amount,cur:x.cur,iso:new Date().toISOString(),note});save();alert(x.remaining===0?'تم تسديد حساب التاجر بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
+function deleteSupplierDebt(id){if(confirm('حذف حساب التاجر وكل دفعاته؟')){d.supplierDebts=d.supplierDebts.filter(x=>x.id!==id);d.supplierPayments=d.supplierPayments.filter(x=>x.debtId!==id);save()}}
+function renderSuppliers(){if(!$('supplierBody'))return;const q=($('supplierSearch').value||'').trim().toLowerCase(),rows=d.supplierDebts.filter(x=>!q||(x.name||'').toLowerCase().includes(q)||(x.phone||'').toLowerCase().includes(q)),open=rows.filter(x=>Number(x.remaining)>0),today=ymd(new Date());$('supplierTotal').textContent=byCurrency(rows,'amount');$('supplierPaidTotal').textContent=byCurrency(rows,'paid');$('supplierRemaining').textContent=byCurrency(rows,'remaining');$('supplierCount').textContent=new Set(open.map(x=>(x.name||'').trim().toLowerCase())).size;$('supplierBody').innerHTML=rows.map(x=>`<tr><td><b>${esc(x.name)}</b><br><span class="muted">${esc(x.note||'')}</span></td><td>${esc(x.phone||'-')}</td><td>${esc(x.date||'-')}</td><td>${esc(x.due||'-')}${x.remaining>0&&x.due&&x.due<today?' <span class="badge unpaid">متأخر</span>':''}</td><td>${money(x.amount,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td><b>${money(x.remaining,x.cur)}</b></td><td>${statusBadge(x)}</td><td><div class="row-actions">${x.remaining>0?`<button class="good" onclick="addSupplierPayment(${x.id})">تسجيل دفعة</button>`:''}<button class="danger" onclick="deleteSupplierDebt(${x.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="9">لا توجد حسابات تجار</td></tr>'}
+function supplierReportRows(){let rows=d.supplierPayments;const f=$('supplierFrom').value,to=$('supplierTo').value;if(f)rows=rows.filter(x=>new Date(x.iso)>=new Date(f+'T00:00:00'));if(to)rows=rows.filter(x=>new Date(x.iso)<=new Date(to+'T23:59:59.999'));return rows}
+function renderSupplierReport(){if(!$('supplierPaymentBody'))return;const rows=supplierReportRows();$('supplierReportPaid').textContent=byCurrency(rows,'amount');$('supplierReportCount').textContent=rows.length;$('supplierPaymentBody').innerHTML=rows.map(x=>`<tr><td>${esc(fmtDate(new Date(x.iso)))}</td><td><b>${esc(x.name)}</b></td><td>${num(x.amount)}</td><td>${esc(x.cur)}</td><td>${esc(x.note||'-')}</td></tr>`).join('')||'<tr><td colspan="5">لا توجد دفعات ضمن الفترة</td></tr>'}
+function clearSupplierRange(){$('supplierFrom').value='';$('supplierTo').value='';renderSupplierReport()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function num(n){return Number(n||0).toLocaleString('en-AU',{maximumFractionDigits:2})}
 function money(n,c){return `${num(n)} ${c||''}`.trim()}
 function fmtDate(x){return new Intl.DateTimeFormat('ar-AU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(x)}
 function setSaleDate(){const n=new Date(),l=new Date(n.getTime()-n.getTimezoneOffset()*60000);$('saleDate').value=l.toISOString().slice(0,16)}
 function ymd(x){return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+function statusOf(s){return Number(s.remaining)<=0?'paid':Number(s.paid)>0?'partial':'unpaid'}
+function statusLabel(s){const st=statusOf(s);return st==='paid'?'مدفوع بالكامل':st==='partial'?'مدفوع جزئياً':'غير مدفوع'}
+function statusBadge(s){const st=statusOf(s);return `<span class="badge ${st}">${statusLabel(s)}</span>`}
 function setReportRange(){const t=$('reportType').value,n=new Date();let f=new Date(n),to=new Date(n);$('fromDate').disabled=$('toDate').disabled=t==='all';if(t==='all'){$('fromDate').value='';$('toDate').value='';renderReports();return}if(t==='daily'){f=to=new Date(n.getFullYear(),n.getMonth(),n.getDate())}if(t==='monthly'){f=new Date(n.getFullYear(),n.getMonth(),1);to=new Date(n.getFullYear(),n.getMonth()+1,0)}if(t==='yearly'){f=new Date(n.getFullYear(),0,1);to=new Date(n.getFullYear(),11,31)}if(t==='custom'){if(!$('fromDate').value)$('fromDate').value=ymd(new Date(n.getFullYear(),n.getMonth(),1));if(!$('toDate').value)$('toDate').value=ymd(n);return}$('fromDate').value=ymd(f);$('toDate').value=ymd(to);renderReports()}
 function reportSales(){if($('reportType').value==='all')return d.sales;if(!$('fromDate').value||!$('toDate').value)return [];const f=new Date($('fromDate').value+'T00:00:00'),to=new Date($('toDate').value+'T23:59:59.999');return d.sales.filter(s=>{const x=new Date(s.iso);return !isNaN(x)&&x>=f&&x<=to})}
 function byCurrency(rows,key){const out={};rows.forEach(s=>out[s.cur||'غير محدد']=(out[s.cur||'غير محدد']||0)+Number(s[key]||0));return Object.entries(out).map(([c,v])=>money(v,c)).join(' | ')||'0'}
-function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRevenue').textContent=byCurrency(r,'total');$('rCost').textContent=byCurrency(r,'cost');$('rProfit').textContent=byCurrency(r,'profit');$('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));$('reportCaption').textContent=$('reportType').value==='all'?'جميع عمليات البيع':`من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;$('reportBody').innerHTML=r.map(s=>`<tr><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${esc(s.cur)}</td></tr>`).join('')||'<tr><td colspan="7">لا توجد مبيعات في هذه الفترة</td></tr>'}
-function exportData(){const blob=new Blob([JSON.stringify({app:'Ali Cosmetics',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ali-cosmetics-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
+function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRevenue').textContent=byCurrency(r,'total');$('rCost').textContent=byCurrency(r,'cost');$('rProfit').textContent=byCurrency(r,'profit');$('rReceived').textContent=byCurrency(r,'paid');$('rRemaining').textContent=byCurrency(r,'remaining');$('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));$('reportCaption').textContent=$('reportType').value==='all'?'جميع عمليات البيع':`من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;$('reportBody').innerHTML=r.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.customerName)}</td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${num(s.paid)}</td><td>${num(s.remaining)}</td><td>${esc(s.cur)}</td></tr>`).join('')||'<tr><td colspan="11">لا توجد مبيعات في هذه الفترة</td></tr>'}
+function exportData(){const blob=new Blob([JSON.stringify({app:'Ali Cosmetics Pro v4',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ali-cosmetics-pro-v4-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
 function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),z=x.data||x;if(!Array.isArray(z.products)||!Array.isArray(z.sales))throw 0;if(confirm('استبدال البيانات الحالية؟')){localStorage.setItem(KEY,JSON.stringify(z));d=load();render();alert('تم الاسترجاع')}}catch{alert('الملف غير صالح')}e.target.value=''};r.readAsText(f)}
-function render(){$('sp').textContent=d.products.length;$('stockQty').textContent=num(d.products.reduce((a,p)=>a+Number(p.q||0),0));$('soldQty').textContent=num(d.sales.reduce((a,s)=>a+Number(s.q||0),0));$('ss').textContent=d.sales.length;$('pb').innerHTML=d.products.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.c)}</td><td>${num(p.q)}</td><td>${num(p.b)}</td><td>${num(p.s)}</td><td>${esc(p.cur)}</td><td><div class="row-actions"><button class="danger" onclick="delProduct(${p.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="7">لا توجد منتجات</td></tr>';$('spick').innerHTML=d.products.filter(p=>p.q>0).map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر ${num(p.q)} — ${money(p.s,p.cur)}</option>`).join('')||'<option value="">لا توجد منتجات</option>';$('sb').innerHTML=d.sales.map(s=>`<tr><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${esc(s.cur)}</td><td><div class="row-actions"><button class="danger" onclick="delSale(${s.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="8">لا توجد مبيعات</td></tr>';renderReports()}
+function renderSales(){const q=($('salesSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q));$('sb').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td><b>${esc(s.customerName)}</b><br><span class="muted">${esc(s.customerPhone)}</span></td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td>${money(s.remaining,s.cur)}</td><td>${statusBadge(s)}</td><td><div class="row-actions">${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}<button class="danger" onclick="delSale(${s.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="10">لا توجد فواتير</td></tr>'}
+function renderDebts(){const q=($('debtSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>Number(s.remaining)>0).filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q)||(s.customerPhone||'').toLowerCase().includes(q)),today=ymd(new Date());$('debtCount').textContent=rows.length;$('debtTotal').textContent=byCurrency(rows,'remaining');const names=new Set(rows.map(s=>(s.customerName||'').trim().toLowerCase()));$('debtCustomers').textContent=names.size;const overdue=rows.filter(s=>s.dueDate&&s.dueDate<today);$('overdueTotal').textContent=byCurrency(overdue,'remaining');$('debtBody').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td><b>${esc(s.customerName)}</b></td><td>${esc(s.customerPhone||'-')}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.dueDate||'-')}${s.dueDate&&s.dueDate<today?' <span class="badge unpaid">متأخر</span>':''}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td><b>${money(s.remaining,s.cur)}</b></td><td>${statusBadge(s)}</td><td><button class="good" onclick="addPayment(${s.id})">تسجيل دفعة</button></td></tr>`).join('')||'<tr><td colspan="10">لا توجد ديون حالياً</td></tr>';
+ const agg={};rows.forEach(s=>{const k=(s.customerName||'').trim().toLowerCase()+'|'+(s.customerPhone||'');if(!agg[k])agg[k]={name:s.customerName,phone:s.customerPhone,count:0,vals:{}};agg[k].count++;agg[k].vals[s.cur]=(agg[k].vals[s.cur]||0)+Number(s.remaining||0)});$('customerDebtBody').innerHTML=Object.values(agg).map(a=>`<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.phone||'-')}</td><td>${a.count}</td><td>${Object.entries(a.vals).map(([c,v])=>money(v,c)).join(' | ')}</td></tr>`).join('')||'<tr><td colspan="4">لا توجد ديون</td></tr>'}
+function renderPayments(){const q=($('paymentSearch')?.value||'').trim().toLowerCase(),rows=d.payments.filter(p=>!q||String(p.invoiceNo).includes(q)||(p.customerName||'').toLowerCase().includes(q));$('paymentCount').textContent=rows.length;$('paymentTotal').textContent=byCurrency(rows,'amount');$('paidInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='paid').length;$('partialInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='partial').length;$('paymentBody').innerHTML=rows.map(p=>`<tr><td>${esc(fmtDate(new Date(p.iso)))}</td><td>#${p.invoiceNo}</td><td><b>${esc(p.customerName)}</b></td><td>${num(p.amount)}</td><td>${esc(p.cur)}</td><td>${esc(p.note||'-')}</td></tr>`).join('')||'<tr><td colspan="6">لا توجد مدفوعات</td></tr>'}
+function render(){
+ $('sp').textContent=d.products.length;$('stockQty').textContent=num(d.products.reduce((a,p)=>a+Number(p.q||0),0));$('ss').textContent=d.sales.length;$('homeDebt').textContent=byCurrency(d.sales.filter(s=>s.remaining>0),'remaining');$('homeSupplierDebt').textContent=byCurrency(d.supplierDebts.filter(x=>x.remaining>0),'remaining');
+ $('pb').innerHTML=d.products.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.c)}</td><td>${num(p.q)}</td><td>${num(p.b)}</td><td>${num(p.s)}</td><td>${esc(p.cur)}</td><td><div class="row-actions"><button class="danger" onclick="delProduct(${p.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="7">لا توجد منتجات</td></tr>';
+ $('spick').innerHTML=d.products.filter(p=>p.q>0).map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر ${num(p.q)} — ${money(p.s,p.cur)}</option>`).join('')||'<option value="">لا توجد منتجات</option>';
+ renderSales();renderDebts();renderPayments();renderSuppliers();renderSupplierReport();renderReports();previewSale()
+}
 </script>
 </body></html>
