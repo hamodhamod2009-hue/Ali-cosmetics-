@@ -1,19 +1,134 @@
-<!doctype html><html lang="ar" dir="rtl"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ali Cosmetics</title><style>body{font-family:Arial,sans-serif;background:#f5f6f8;margin:0;color:#222}header{background:#111827;color:#fff;padding:18px}main{max-width:900px;margin:auto;padding:14px}.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}label{display:block;font-size:13px;font-weight:bold;margin:6px 0}input,select,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccc;font-size:16px;box-sizing:border-box}button{background:#111827;color:white;border:0;font-weight:bold;margin-top:10px}.hidden{display:none}.nav{display:flex;gap:8px;overflow:auto;margin-bottom:14px}.nav button{background:white;color:#111;border:1px solid #ccc;white-space:nowrap}.nav button.active{background:#111827;color:#fff}table{width:100%;border-collapse:collapse;min-width:650px}th,td{padding:9px;border-bottom:1px solid #eee;text-align:right}.wrap{overflow:auto}.danger{background:#b91c1c}.muted{color:#666;font-size:13px}.stat{font-size:25px;font-weight:bold}@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}#login{max-width:420px;margin:10vh auto}</style><body>
-<div id="login" class="card"><h1>Ali Cosmetics</h1><p class="muted">نسخة مبدئية للتجربة على الآيباد</p><label>اسم المستخدم</label><input id="u" value="admin"><label>كلمة المرور</label><input id="pw" type="password" value="admin123"><button onclick="login()">تسجيل الدخول</button><p id="err" class="muted"></p><p class="muted">بيانات التجربة: admin / admin123</p></div>
-<div id="app" class="hidden"><header><h1>Ali Cosmetics</h1><small>إدارة المنتجات والمخزون والمبيعات</small></header><main><div class="nav"><button class="active" onclick="tab('home',this)">الرئيسية</button><button onclick="tab('products',this)">المنتجات والمخزون</button><button onclick="tab('sales',this)">المبيعات</button><button onclick="location.reload()">خروج</button></div>
-<section id="home"><div class="grid"><div class="card"><div class="muted">عدد المنتجات</div><div id="sp" class="stat">0</div></div><div class="card"><div class="muted">إجمالي الكمية</div><div id="sq" class="stat">0</div></div><div class="card"><div class="muted">عدد المبيعات</div><div id="ss" class="stat">0</div></div></div><div class="card"><h2>ابدأ</h2><p>أضف منتجاتك مع سعر الشراء وسعر البيع والكمية، ثم سجل المبيعات وسيتم خصم الكمية تلقائياً.</p></div></section>
-<section id="products" class="hidden"><div class="card"><h2>إضافة منتج</h2><div class="grid"><div><label>اسم المنتج</label><input id="name"></div><div><label>التصنيف</label><input id="cat"></div><div><label>سعر الشراء</label><input id="buy" type="number" min="0" step=".01"></div><div><label>سعر البيع</label><input id="sell" type="number" min="0" step=".01"></div><div><label>الكمية</label><input id="qty" type="number" min="0"></div><div><label>العملة</label><select id="cur"><option>AUD</option><option>USD</option><option>IQD</option></select></div></div><button onclick="addProduct()">إضافة المنتج</button><p id="pm" class="muted"></p></div><div class="card"><h2>المخزون</h2><div class="wrap"><table><thead><tr><th>المنتج</th><th>التصنيف</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>العملة</th><th></th></tr></thead><tbody id="pb"></tbody></table></div></div></section>
-<section id="sales" class="hidden"><div class="card"><h2>تسجيل بيع</h2><label>المنتج</label><select id="spick"></select><label>الكمية</label><input id="sqty" type="number" min="1" value="1"><button onclick="sale()">تسجيل البيع</button><p id="sm" class="muted"></p></div><div class="card"><h2>المبيعات</h2><div class="wrap"><table><thead><tr><th>الوقت</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>العملة</th></tr></thead><tbody id="sb"></tbody></table></div></div></section></main></div>
-<script>let d=JSON.parse(localStorage.getItem('ali_cosmetics')||'{"products":[],"sales":[]}');const $=id=>document.getElementById(id);function save(){localStorage.setItem('ali_cosmetics',JSON.stringify(d));render()}function login(){
- const user=document.getElementById('u').value.trim();
- const pass=document.getElementById('pw').value;
- const error=document.getElementById('err');
- if(user==='admin' && pass==='admin123'){
-   document.getElementById('login').classList.add('hidden');
-   document.getElementById('app').classList.remove('hidden');
-   error.textContent='';
-   render();
- } else {
-   error.textContent='بيانات الدخول غير صحيحة';
- }
-}function tab(id,b){['home','products','sales'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()}function addProduct(){let n=$('name').value.trim(),c=$('cat').value.trim(),b=+$('buy').value,s=+$('sell').value,q=+$('qty').value;if(!n||b<0||s<0||q<0){$('pm').textContent='أدخل البيانات بشكل صحيح';return}d.products.push({id:Date.now(),n,c,b,s,q,cur:$('cur').value});['name','cat','buy','sell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة المنتج';save()}function del(id){if(confirm('حذف المنتج؟')){d.products=d.products.filter(p=>p.id!==id);save()}}function sale(){let p=d.products.find(x=>x.id==$('spick').value),q=+$('sqty').value;if(!p||q<1||q>p.q){$('sm').textContent='الكمية غير صحيحة أو أكبر من المخزون';return}p.q-=q;d.sales.unshift({t:new Date().toLocaleString('ar-AU'),n:p.n,q,total:q*p.s,cur:p.cur});$('sm').textContent='تم تسجيل البيع وخصم المخزون';save()}function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function render(){$('sp').textContent=d.products.length;$('sq').textContent=d.products.reduce((a,p)=>a+p.q,0);$('ss').textContent=d.sales.length;$('pb').innerHTML=d.products.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.c)}</td><td>${p.q}</td><td>${p.b}</td><td>${p.s}</td><td>${p.cur}</td><td><button class="danger" onclick="del(${p.id})">حذف</button></td></tr>`).join('')||'<tr><td colspan="7">لا توجد منتجات</td></tr>';$('spick').innerHTML=d.products.filter(p=>p.q>0).map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر ${p.q}</option>`).join('')||'<option>لا توجد منتجات</option>';$('sb').innerHTML=d.sales.map(s=>`<tr><td>${s.t}</td><td>${esc(s.n)}</td><td>${s.q}</td><td>${s.total}</td><td>${s.cur}</td></tr>`).join('')||'<tr><td colspan="5">لا توجد مبيعات</td></tr>'}</script></body></html>
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>Ali Cosmetics</title>
+<style>
+:root{--dark:#111827;--bg:#f5f6f8;--card:#fff;--muted:#6b7280;--danger:#b91c1c;--good:#047857;--blue:#2563eb}
+*{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;background:var(--bg);margin:0;color:#222}
+header{background:var(--dark);color:#fff;padding:18px}header h1{margin:0 0 4px}
+main{max-width:1100px;margin:auto;padding:14px}.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+.grid,.stats,.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:block;font-size:13px;font-weight:bold;margin:6px 0}input,select,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccc;font-size:16px}
+button{background:var(--dark);color:#fff;border:0;font-weight:bold;margin-top:10px;cursor:pointer}.danger{background:var(--danger)}.good{background:var(--good)}
+.hidden{display:none!important}.nav{display:flex;gap:8px;overflow:auto;margin-bottom:14px}.nav button{background:#fff;color:#111;border:1px solid #ccc;white-space:nowrap;min-width:max-content;margin:0}
+.nav button.active{background:var(--dark);color:#fff}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:9px;border-bottom:1px solid #eee;text-align:right}
+th{background:#fafafa}.wrap{overflow:auto}.muted{color:var(--muted);font-size:13px}.stat{font-size:24px;font-weight:bold;margin-top:4px}.goodText{color:var(--good)}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px}.row-actions{display:flex;gap:6px}.row-actions button{padding:7px 10px;margin:0;width:auto;font-size:13px}
+#login{max-width:420px;margin:10vh auto}@media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="login" class="card">
+<h1>Ali Cosmetics</h1><p class="muted">نظام إدارة المنتجات والمخزون والمبيعات</p>
+<label>اسم المستخدم</label><input id="u" value="admin">
+<label>كلمة المرور</label><input id="pw" type="password" value="admin123">
+<button onclick="login()">تسجيل الدخول</button><p id="err" class="muted"></p>
+<p class="muted">بيانات الدخول: admin / admin123</p>
+</div>
+
+<div id="app" class="hidden">
+<header><h1>Ali Cosmetics</h1><small>إدارة المنتجات والمخزون والمبيعات والتقارير</small></header>
+<main>
+<div class="nav">
+<button class="active" onclick="tab('home',this)">الرئيسية</button>
+<button onclick="tab('products',this)">المنتجات والمخزون</button>
+<button onclick="tab('sales',this)">المبيعات</button>
+<button onclick="tab('reports',this)">التقارير والأرباح</button>
+<button onclick="location.reload()">خروج</button>
+</div>
+
+<section id="home">
+<div class="stats">
+<div class="card"><div class="muted">عدد المنتجات</div><div id="sp" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي المخزون</div><div id="stockQty" class="stat">0</div></div>
+<div class="card"><div class="muted">القطع المباعة</div><div id="soldQty" class="stat">0</div></div>
+<div class="card"><div class="muted">عمليات البيع</div><div id="ss" class="stat">0</div></div>
+</div>
+<div class="card"><h2>ملخص سريع</h2>
+<p>أضف المنتجات وسعر الشراء والبيع والكمية، ثم سجل المبيعات. يتم خصم المخزون وحساب التكلفة والربح تلقائياً.</p>
+<p class="note">البيانات محفوظة في متصفح الجهاز. استخدم النسخة الاحتياطية بصورة منتظمة.</p></div>
+</section>
+
+<section id="products" class="hidden">
+<div class="card"><h2>إضافة منتج</h2><div class="grid">
+<div><label>اسم المنتج</label><input id="name"></div>
+<div><label>التصنيف</label><input id="cat"></div>
+<div><label>سعر الشراء</label><input id="buy" type="number" min="0" step=".01"></div>
+<div><label>سعر البيع</label><input id="sell" type="number" min="0" step=".01"></div>
+<div><label>الكمية</label><input id="qty" type="number" min="0" step="1"></div>
+<div><label>العملة</label><select id="cur"><option>AUD</option><option>USD</option><option>IQD</option></select></div>
+</div><button onclick="addProduct()">إضافة المنتج</button><p id="pm" class="muted"></p></div>
+<div class="card"><h2>المخزون</h2><div class="wrap"><table>
+<thead><tr><th>المنتج</th><th>التصنيف</th><th>الكمية</th><th>شراء</th><th>بيع</th><th>العملة</th><th>الإجراء</th></tr></thead><tbody id="pb"></tbody>
+</table></div></div>
+</section>
+
+<section id="sales" class="hidden">
+<div class="card"><h2>تسجيل بيع</h2><div class="grid">
+<div><label>المنتج</label><select id="spick"></select></div>
+<div><label>الكمية</label><input id="sqty" type="number" min="1" value="1"></div>
+<div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
+</div><button onclick="sale()">تسجيل البيع</button><p id="sm" class="muted"></p></div>
+<div class="card"><h2>سجل المبيعات</h2><div class="wrap"><table>
+<thead><tr><th>الوقت</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>التكلفة</th><th>الربح</th><th>العملة</th><th>الإجراء</th></tr></thead><tbody id="sb"></tbody>
+</table></div></div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="card"><h2>التقارير والأرباح</h2><div class="filters">
+<div><label>نوع التقرير</label><select id="reportType" onchange="setReportRange()">
+<option value="daily">يومي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">فترة مخصصة</option><option value="all">كل المبيعات</option>
+</select></div>
+<div><label>من تاريخ</label><input id="fromDate" type="date"></div>
+<div><label>إلى تاريخ</label><input id="toDate" type="date"></div>
+<div><button onclick="renderReports()">عرض التقرير</button></div>
+</div></div>
+
+<div class="stats">
+<div class="card"><div class="muted">إجمالي المبيعات</div><div id="rRevenue" class="stat">0</div></div>
+<div class="card"><div class="muted">تكلفة البضاعة</div><div id="rCost" class="stat">0</div></div>
+<div class="card"><div class="muted">صافي الربح</div><div id="rProfit" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">القطع المباعة</div><div id="rQty" class="stat">0</div></div>
+</div>
+
+<div class="card"><h2>تفاصيل التقرير</h2><div id="reportCaption" class="muted"></div><div class="wrap"><table>
+<thead><tr><th>التاريخ</th><th>المنتج</th><th>الكمية</th><th>المبيعات</th><th>التكلفة</th><th>الربح</th><th>العملة</th></tr></thead><tbody id="reportBody"></tbody>
+</table></div></div>
+
+<div class="card"><h2>نسخة احتياطية</h2><div class="grid">
+<button class="good" onclick="exportData()">تنزيل نسخة احتياطية</button>
+<div><label>استرجاع نسخة</label><input type="file" accept=".json,application/json" onchange="importData(event)"></div>
+</div></div>
+</section>
+</main>
+</div>
+
+<script>
+const KEY='ali_cosmetics', $=id=>document.getElementById(id);let d=load();
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"sales":[]}');x.products=Array.isArray(x.products)?x.products:[];x.sales=Array.isArray(x.sales)?x.sales:[];
+x.sales=x.sales.map((s,i)=>{const q=Number(s.q)||0,total=Number(s.total)||0,p=x.products.find(p=>p.n===s.n),unitBuy=Number.isFinite(Number(s.unitBuy))?Number(s.unitBuy):(p?Number(p.b)||0:0),cost=Number.isFinite(Number(s.cost))?Number(s.cost):q*unitBuy,profit=Number.isFinite(Number(s.profit))?Number(s.profit):total-cost;let iso=s.iso||'';if(!iso&&s.t){const a=new Date(s.t);if(!isNaN(a))iso=a.toISOString()}if(!iso)iso=new Date().toISOString();return {...s,id:s.id||Date.now()+i,iso,q,total,unitBuy,cost,profit,cur:s.cur||'AUD'}});return x}catch{return {products:[],sales:[]}}}
+function save(){localStorage.setItem(KEY,JSON.stringify(d));render()}
+function login(){if($('u').value.trim()==='admin'&&$('pw').value==='admin123'){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('err').textContent='';setSaleDate();setReportRange();render()}else $('err').textContent='بيانات الدخول غير صحيحة'}
+function tab(id,b){['home','products','sales','reports'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports()}
+function addProduct(){const n=$('name').value.trim(),c=$('cat').value.trim(),b=Number($('buy').value),s=Number($('sell').value),q=Number($('qty').value);if(!n||!Number.isFinite(b)||!Number.isFinite(s)||!Number.isInteger(q)||b<0||s<0||q<0){$('pm').textContent='أدخل البيانات بشكل صحيح';return}d.products.push({id:Date.now(),n,c,b,s,q,cur:$('cur').value});['name','cat','buy','sell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة المنتج';save()}
+function delProduct(id){if(confirm('حذف المنتج؟')){d.products=d.products.filter(p=>p.id!==id);save()}}
+function sale(){const p=d.products.find(x=>x.id==Number($('spick').value)),q=Number($('sqty').value),dt=new Date($('saleDate').value);if(!p||!Number.isInteger(q)||q<1||q>p.q||isNaN(dt)){$('sm').textContent='الكمية أو التاريخ غير صحيح';return}const total=q*p.s,cost=q*p.b;p.q-=q;d.sales.unshift({id:Date.now(),iso:dt.toISOString(),t:fmtDate(dt),n:p.n,productId:p.id,q,total,cost,profit:total-cost,unitBuy:p.b,unitSell:p.s,cur:p.cur});$('sm').textContent='تم تسجيل البيع وحساب الربح';$('sqty').value=1;setSaleDate();save()}
+function delSale(id){const s=d.sales.find(x=>x.id===id);if(!s)return;if(confirm('حذف عملية البيع وإرجاع الكمية للمخزون؟')){const p=d.products.find(p=>p.id===s.productId)||d.products.find(p=>p.n===s.n);if(p)p.q+=Number(s.q)||0;d.sales=d.sales.filter(x=>x.id!==id);save()}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function num(n){return Number(n||0).toLocaleString('en-AU',{maximumFractionDigits:2})}
+function money(n,c){return `${num(n)} ${c||''}`.trim()}
+function fmtDate(x){return new Intl.DateTimeFormat('ar-AU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(x)}
+function setSaleDate(){const n=new Date(),l=new Date(n.getTime()-n.getTimezoneOffset()*60000);$('saleDate').value=l.toISOString().slice(0,16)}
+function ymd(x){return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+function setReportRange(){const t=$('reportType').value,n=new Date();let f=new Date(n),to=new Date(n);$('fromDate').disabled=$('toDate').disabled=t==='all';if(t==='all'){$('fromDate').value='';$('toDate').value='';renderReports();return}if(t==='daily'){f=to=new Date(n.getFullYear(),n.getMonth(),n.getDate())}if(t==='monthly'){f=new Date(n.getFullYear(),n.getMonth(),1);to=new Date(n.getFullYear(),n.getMonth()+1,0)}if(t==='yearly'){f=new Date(n.getFullYear(),0,1);to=new Date(n.getFullYear(),11,31)}if(t==='custom'){if(!$('fromDate').value)$('fromDate').value=ymd(new Date(n.getFullYear(),n.getMonth(),1));if(!$('toDate').value)$('toDate').value=ymd(n);return}$('fromDate').value=ymd(f);$('toDate').value=ymd(to);renderReports()}
+function reportSales(){if($('reportType').value==='all')return d.sales;if(!$('fromDate').value||!$('toDate').value)return [];const f=new Date($('fromDate').value+'T00:00:00'),to=new Date($('toDate').value+'T23:59:59.999');return d.sales.filter(s=>{const x=new Date(s.iso);return !isNaN(x)&&x>=f&&x<=to})}
+function byCurrency(rows,key){const out={};rows.forEach(s=>out[s.cur||'غير محدد']=(out[s.cur||'غير محدد']||0)+Number(s[key]||0));return Object.entries(out).map(([c,v])=>money(v,c)).join(' | ')||'0'}
+function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRevenue').textContent=byCurrency(r,'total');$('rCost').textContent=byCurrency(r,'cost');$('rProfit').textContent=byCurrency(r,'profit');$('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));$('reportCaption').textContent=$('reportType').value==='all'?'جميع عمليات البيع':`من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;$('reportBody').innerHTML=r.map(s=>`<tr><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${esc(s.cur)}</td></tr>`).join('')||'<tr><td colspan="7">لا توجد مبيعات في هذه الفترة</td></tr>'}
+function exportData(){const blob=new Blob([JSON.stringify({app:'Ali Cosmetics',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`ali-cosmetics-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
+function importData(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),z=x.data||x;if(!Array.isArray(z.products)||!Array.isArray(z.sales))throw 0;if(confirm('استبدال البيانات الحالية؟')){localStorage.setItem(KEY,JSON.stringify(z));d=load();render();alert('تم الاسترجاع')}}catch{alert('الملف غير صالح')}e.target.value=''};r.readAsText(f)}
+function render(){$('sp').textContent=d.products.length;$('stockQty').textContent=num(d.products.reduce((a,p)=>a+Number(p.q||0),0));$('soldQty').textContent=num(d.sales.reduce((a,s)=>a+Number(s.q||0),0));$('ss').textContent=d.sales.length;$('pb').innerHTML=d.products.map(p=>`<tr><td>${esc(p.n)}</td><td>${esc(p.c)}</td><td>${num(p.q)}</td><td>${num(p.b)}</td><td>${num(p.s)}</td><td>${esc(p.cur)}</td><td><div class="row-actions"><button class="danger" onclick="delProduct(${p.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="7">لا توجد منتجات</td></tr>';$('spick').innerHTML=d.products.filter(p=>p.q>0).map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر ${num(p.q)} — ${money(p.s,p.cur)}</option>`).join('')||'<option value="">لا توجد منتجات</option>';$('sb').innerHTML=d.sales.map(s=>`<tr><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${esc(s.cur)}</td><td><div class="row-actions"><button class="danger" onclick="delSale(${s.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="8">لا توجد مبيعات</td></tr>';renderReports()}
+</script>
+</body></html>
