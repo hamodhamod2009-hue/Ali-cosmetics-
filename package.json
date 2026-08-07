@@ -1,16 +1,14 @@
 {
-  "name": "ali-cosmetics-final",
-  "version": "2.0.0",
+  "name": "ali-cosmetics",
+  "version": "10.1.0",
   "private": true,
-  "description": "Ali Cosmetics inventory, sales and reports app",
+  "description": "Ali Cosmetics inventory, purchases, sales, debts, supplier accounts, reports and worker permissions",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "check": "node scripts/check.js"
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "express": "^4.21.2"
   }
 }
