@@ -1,2 +1,2 @@
-Ali Cosmetics v11.2
-Supplier settlement workflow: supplier + invoice + partial payment + remaining balance.
+v11.3
+Purchase screen: New Product / Existing Product

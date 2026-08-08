@@ -1,6 +1,6 @@
 {
   "name": "ali-cosmetics",
-  "version": "10.1.0",
+  "version": "11.3.0",
   "private": true,
   "description": "Ali Cosmetics inventory, purchases, sales, debts, supplier accounts, reports and worker permissions",
   "main": "server.js",
