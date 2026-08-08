@@ -1,3 +1,2 @@
-Ali Cosmetics
-Version: 11.0 Complete Current Architecture
-Build date: 2026-08-07
+Ali Cosmetics v11.2
+Supplier settlement workflow: supplier + invoice + partial payment + remaining balance.

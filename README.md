@@ -45,3 +45,8 @@
 
 ## ملاحظة أمنية مهمة
 نظام الصلاحيات الحالي مناسب لتنظيم استخدام العمال داخل واجهة البرنامج، لكن البيانات والحسابات محفوظة في المتصفح وليست نظام مصادقة خادمي عالي الأمان. إذا احتجت لاحقاً استخداماً من أجهزة متعددة مع قاعدة بيانات مركزية ومزامنة وحماية خادمية، فهذا يتطلب مرحلة Backend/Database منفصلة.
+
+## v11.2
+- Added a dedicated supplier invoice settlement form.
+- Select supplier, select an outstanding invoice, enter a payment, and update remaining balance automatically.
+- Supplier accounts and payment history now show the supplier invoice number for easier search and review.
