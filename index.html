@@ -132,7 +132,7 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 
         <label>سعر شراء القطعة <span class="req">*</span></label>
 
-        <input id="purchaseUnitCost" type="number" min="0" step="0.01">
+<input id="purchaseUnitCost" type="number" min="0" step="0.01" oninput="previewPurchase()">
 
       </div>
 
@@ -140,7 +140,7 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 
         <label>المدفوع الآن</label>
 
-        <input id="purchasePaid" type="number" min="0" step="0.01" value="0">
+<input id="purchasePaid" type="number" min="0" step="0.01" value="0" oninput="previewPurchase()">
 
 </div>
 
