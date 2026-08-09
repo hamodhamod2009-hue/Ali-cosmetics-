@@ -538,33 +538,47 @@ let paid=cashPaid;
   }
 
 const total=q*unitCost;
-const oldCredits=d.supplierDebts.filter(x=>
+const oldCredits=d.purchases.filter(p=>
 
-  (x.name||'').trim().toLowerCase()===name.trim().toLowerCase() &&
+  (p.name||'').trim().toLowerCase()===name.trim().toLowerCase() &&
 
-  (x.cur||'IQD')===cur &&
+  (p.cur||'IQD')===cur &&
 
-  Number(x.credit||0)>0
+  Number(p.credit||0)>0
 
 );
 
-let availableCredit=oldCredits.reduce((s,x)=>s+Number(x.credit||0),0);
+const availableCredit=oldCredits.reduce((s,p)=>s+Number(p.credit||0),0);
 
-const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
+const usedCredit=Math.min(
+
+  availableCredit,
+
+  Math.max(total-cashPaid,0)
+
+);
 
 paid=cashPaid+usedCredit;
 
 let creditLeft=usedCredit;
 
-oldCredits.forEach(x=>{
+oldCredits.forEach(p=>{
 
   if(creditLeft<=0)return;
 
-  const use=Math.min(Number(x.credit||0),creditLeft);
+  const use=Math.min(Number(p.credit||0),creditLeft);
 
-  x.credit=Number(x.credit||0)-use;
+  p.credit=Math.max(0,Number(p.credit||0)-use);
 
   creditLeft-=use;
+
+  const debt=d.supplierDebts.find(x=>x.purchaseId===p.id);
+
+  if(debt){
+
+    debt.credit=Math.max(0,Number(debt.credit||0)-use);
+
+  }
 
 });
   
