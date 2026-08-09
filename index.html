@@ -688,7 +688,7 @@ function render(){
  renderProducts();
 const brands=[...new Set(d.products.filter(p=>!p.archived&&String(p.brand||'').trim()).map(p=>String(p.brand).trim()))];
 
-$('purchaseBrand').innerHTML=brands.map(b=>`<option value="${esc(b)}">${es
+$('purchaseBrand').innerHTML=brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
  renderPurchases();renderSales();renderDebts();renderPayments();renderSuppliers();renderSupplierReport();renderReports();renderUsers();previewSale();previewPurchase();applyRole();applyLang()
 }
 
