@@ -577,7 +577,7 @@ const credit=Math.max(paid-total,0);
     paid,
 
     remaining,
-
+credit,
     cur,
 
     date,
@@ -592,37 +592,37 @@ const credit=Math.max(paid-total,0);
 
   });
 
-  if(remaining>0){
+if(remaining>0){
 
-    d.supplierDebts.unshift({
+  d.supplierDebts.unshift({
 
-      id:id+1,
+    id:id+1,
 
-      purchaseId:id,
+    purchaseId:id,
 
-      name,
+    name,
 
-      phone,
+    phone,
 
-      amount:total,
+    amount:total,
 
-      paid,
+    paid,
 
-      remaining,
-  render();
-      cur,
+    remaining,
 
-      date,
+    cur,
 
-      due,
+    date,
 
-      invoiceNo,
+    due,
 
-      note
+    invoiceNo,
 
-    });
+    note
 
-  }
+  });
+
+}
 
   if(paid>0){
 
@@ -671,7 +671,7 @@ const credit=Math.max(paid-total,0);
   $('purchaseMsg').textContent='تم تسجيل الشراء وتحديث حساب التاجر';
 
   save();
-
+render();
 
 
 }
