@@ -88,7 +88,11 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 
     <h2>شراء بضاعة من تاجر</h2>
 
-    <p class="muted">تسجيل الشراء يزيد المخزون تلقائياً، ويضيف المبلغ المتبقي إلى حساب التاجر.</p>
+    <p class="muted">
+
+      سجل الشراء، ويتم تسجيل حساب التاجر والمبلغ المتبقي تلقائياً.
+
+    </p>
 
     <div class="grid">
 
@@ -136,8 +140,122 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 
         <label>المدفوع الآن</label>
 
-        <input id="purchasePaid" type="number" min="0" step="0.01" value="
+        <input id="purchasePaid" type="number" min="0" step="0.01" value="0">
 
+</div>
+
+<div>
+
+  <label>العملة</label>
+
+  <select id="purchaseCur">
+
+    <option value="IQD" selected>IQD</option>
+
+  </select>
+
+</div>
+
+<div>
+
+  <label>تاريخ الشراء</label>
+
+  <input id="purchaseDate" type="date">
+
+</div>
+
+<div>
+
+  <label>تاريخ الاستحقاق</label>
+
+  <input id="purchaseDue" type="date">
+
+</div>
+
+<div>
+
+  <label>رقم فاتورة التاجر</label>
+
+  <input id="supplierInvoiceNo">
+
+</div>
+
+<div>
+
+  <label>ملاحظات</label>
+
+  <input id="purchaseNote" placeholder="اختياري">
+
+</div>
+
+</div>
+
+<div id="purchasePreview" class="note" style="margin-top:12px">
+
+  اختر البراند وأدخل الكمية وسعر الشراء لعرض الإجمالي.
+
+</div>
+
+<button onclick="addPurchase()">تسجيل الشراء</button>
+
+<p id="purchaseMsg" class="muted"></p>
+</div>
+
+<div class="card">
+
+  <div class="section-title">
+
+    <h2>سجل المشتريات</h2>
+
+    <input id="purchaseSearch" placeholder="بحث باسم التاجر أو الهاتف أو رقم الفاتورة">
+
+  </div>
+
+  <div class="wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>رقم الفاتورة</th>
+
+          <th>التاجر</th>
+
+          <th>الهاتف</th>
+
+          <th>البراند</th>
+
+          <th>الكمية</th>
+
+          <th>سعر الشراء</th>
+
+          <th>الإجمالي</th>
+
+          <th>المدفوع</th>
+
+          <th>المتبقي</th>
+
+          <th>تاريخ الشراء</th>
+
+          <th>تاريخ الاستحقاق</th>
+
+          <th>إجراء</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="purchaseBody"></tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+</section>
 <section id="sales" class="hidden">
 <div class="card"><h2>تسجيل بيع جديد</h2><div class="grid">
 <div><label>اسم الزبون <span class="req">*</span></label><input id="customerName" placeholder="إجباري"></div>
@@ -338,7 +456,7 @@ function addPayment(id){if(!(hasPerm('payments')||hasPerm('debts'))){alert('لي
 function setPurchaseDate(){if(!$('purchaseDate'))return;if(!$('purchaseDate').value)$('purchaseDate').value=ymd(new Date())}
 function togglePurchaseProductMode(){const mode=$('purchaseProductMode')?.value||'existing',isNew=mode==='new';$('purchaseExistingProductWrap')?.classList.toggle('hidden',isNew);$('purchaseNewNameWrap')?.classList.toggle('hidden',!isNew);$('purchaseNewBrandWrap')?.classList.toggle('hidden',!isNew);if($('purchaseSellPrice'))$('purchaseSellPrice').placeholder=isNew?'مطلوب للمنتج الجديد':'اختياري';if(isNew)$('purchaseNewName')?.focus()}
 function previewPurchase(){if(!$('purchasePreview'))return;const q=Number($('purchaseQty').value)||0,cost=Number($('purchaseUnitCost').value)||0,paid=Math.max(0,Number($('purchasePaid').value)||0),total=q*cost;$('purchasePreview').innerHTML=`الإجمالي: <b>${money(total,$('purchaseCur').value)}</b> — المدفوع: <b>${money(Math.min(paid,total),$('purchaseCur').value)}</b> — المتبقي للتاجر: <b>${money(Math.max(0,total-paid),$('purchaseCur').value)}</b>`}
-function  addPurchase(){
+function addPurchase(){
 
   if(!hasPerm('purchases')){
 
@@ -352,7 +470,7 @@ function  addPurchase(){
 
   const phone=$('purchasePhone').value.trim();
 
-  const p=d.products.find(x=>x.id===Number($('purchaseBrand').value));
+  const brand=$('purchaseBrand').value.trim();
 
   const q=Number($('purchaseQty').value);
 
@@ -360,7 +478,7 @@ function  addPurchase(){
 
   const paid=Number($('purchasePaid').value||0);
 
-  const cur=$('purchaseCur').value;
+  const cur='IQD';
 
   const date=$('purchaseDate').value;
 
@@ -370,7 +488,7 @@ function  addPurchase(){
 
   const note=$('purchaseNote').value.trim();
 
-  if(!name || !p || !Number.isInteger(q) || q<1 || !Number.isFinite(unitCost) || unitCost<0){
+  if(!name || !brand || !Number.isInteger(q) || q<1 || !Number.isFinite(unitCost) || unitCost<0){
 
     $('purchaseMsg').textContent='تحقق من اسم التاجر والبراند والكمية وسعر الشراء';
 
@@ -380,7 +498,7 @@ function  addPurchase(){
 
   const total=q*unitCost;
 
-  if(paid>total){
+  if(paid<0 || paid>total){
 
     $('purchaseMsg').textContent='المبلغ المدفوع لا يمكن أن يتجاوز الإجمالي';
 
@@ -398,12 +516,6 @@ function  addPurchase(){
 
   }
 
-  p.q=Number(p.q||0)+q;
-
-  p.b=unitCost;
-
-  p.cur=cur;
-
   const id=Date.now();
 
   d.purchases.unshift({
@@ -414,13 +526,7 @@ function  addPurchase(){
 
     phone,
 
-    productId:p.id,
-
-    productName:p.n,
-
-    brand:p.brand||'',
-
-    code:p.code||'',
+    brand,
 
     q,
 
@@ -486,7 +592,11 @@ function  addPurchase(){
 
       debtId:remaining>0?id+1:null,
 
+      purchaseId:id,
+
       name,
+
+      phone,
 
       amount:paid,
 
@@ -518,7 +628,7 @@ function  addPurchase(){
 
   $('purchaseNote').value='';
 
-  $('purchaseMsg').textContent='تم تسجيل الشراء وزيادة المخزون وتحديث حساب التاجر';
+  $('purchaseMsg').textContent='تم تسجيل الشراء وتحديث حساب التاجر';
 
   save();
 
