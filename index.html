@@ -514,7 +514,10 @@ function addPurchase(){
 
   const unitCost=Number($('purchaseUnitCost').value);
 
-  const paid=Number($('purchasePaid').value||0);
+const cashPaid=Number($('purchasePaid').value||0);
+
+
+let paid=cashPaid;
 
   const cur='IQD';
 
@@ -535,6 +538,36 @@ function addPurchase(){
   }
 
 const total=q*unitCost;
+const oldCredits=d.supplierDebts.filter(x=>
+
+  (x.name||'').trim().toLowerCase()===name.trim().toLowerCase() &&
+
+  (x.cur||'IQD')===cur &&
+
+  Number(x.credit||0)>0
+
+);
+
+let availableCredit=oldCredits.reduce((s,x)=>s+Number(x.credit||0),0);
+
+const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
+
+paid=cashPaid+usedCredit;
+
+let creditLeft=usedCredit;
+
+oldCredits.forEach(x=>{
+
+  if(creditLeft<=0)return;
+
+  const use=Math.min(Number(x.credit||0),creditLeft);
+
+  x.credit=Number(x.credit||0)-use;
+
+  creditLeft-=use;
+
+});
+  
 
 if(paid<0){
 
@@ -624,7 +657,7 @@ credit,
 
 }
 
-  if(paid>0){
+if(cashPaid>0){
 
     d.supplierPayments.unshift({
 
@@ -638,7 +671,7 @@ credit,
 
       phone,
 
-      amount:paid,
+amount:cashPaid,
 
       cur,
 
