@@ -538,7 +538,7 @@ let paid=cashPaid;
   }
 
 const total=q*unitCost;
-  d.purchases.forEach(p=>{p.credit=Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0)}
+d.purchases.forEach(p=>{p.credit=Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0)});
 const oldCredits=d.purchases.filter(p=>
 
 String(p.name||'').replace(/\s+/g,'').toLowerCase()===
