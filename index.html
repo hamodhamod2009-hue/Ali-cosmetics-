@@ -538,17 +538,23 @@ let paid=cashPaid;
   }
 
 const total=q*unitCost;
-const oldCredits=d.supplierDebts.filter(x=>
+const oldCredits=d.purchases.filter(p=>
 
-  String(x.name||'').replace(/\s+/g,'').toLowerCase()===
+  String(p.name||'').replace(/\s+/g,'').toLowerCase()===
 
   String(name||'').replace(/\s+/g,'').toLowerCase() &&
 
-  String(x.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase() &&
+  String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase() &&
 
-  Number(x.credit||0)>0
+  Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0)>0
 
 );
+
+oldCredits.forEach(p=>{
+
+  p.credit=Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0);
+
+});
 
 const availableCredit=oldCredits.reduce((s,x)=>s+Number(x.credit||0),0);
 
