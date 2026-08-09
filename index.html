@@ -686,7 +686,9 @@ function renderUsers(){if(!$('usersBody'))return;const labels={products:'الم�
 function render(){
  $('sp').textContent=d.products.filter(p=>!p.archived).length;$('homePurchases').textContent=byCurrency(d.purchases,'total');const low=d.products.filter(p=>!p.archived&&Number(p.q)<=Number(p.minStock||0));$('lowStockCount').textContent=low.length;$('lowStockList').innerHTML=low.length?low.map(p=>`<div>⚠️ <b>${esc((p.brand?p.brand+' — ':'')+p.n)}</b>: ${t('المتوفر')} ${num(p.q)} / ${t('حد التنبيه')} ${num(p.minStock||0)}</div>`).join(''):t('لا توجد تنبيهات.');$('stockQty').textContent=num(d.products.filter(p=>!p.archived).reduce((a,p)=>a+Number(p.q||0),0));$('ss').textContent=d.sales.length;$('homeDebt').textContent=byCurrency(d.sales.filter(s=>s.remaining>0),'remaining');$('homeSupplierDebt').textContent=byCurrency(d.supplierDebts.filter(x=>x.remaining>0),'remaining');
  renderProducts();
- $('purchaseBrand').innerHTML=d.products.filter(p=>!p.archived).map(p=>`<option value="${p.id}">${esc((p.brand?p.brand+' - ':'')+p.n)} — المخزون ${num(p.q)}</option>`).join('')||'<option value="">لا توجد منتجات</option>';$('spick').innerHTML=d.products.filter(p=>!p.archived&&p.q>0).map(p=>`<option value="${p.id}">${esc((p.brand?p.brand+' - ':'')+p.n)} — المتوفر ${num(p.q)} — محل ${money(p.s,p.cur)} / تاجر ${money(p.wholesaleSell||p.s,p.cur)}</option>`).join('')||'<option value="">لا توجد منتجات</option>';
+const brands=[...new Set(d.products.filter(p=>!p.archived&&String(p.brand||'').trim()).map(p=>String(p.brand).trim()))];
+
+$('purchaseBrand').innerHTML=brands.map(b=>`<option value="${esc(b)}">${es
  renderPurchases();renderSales();renderDebts();renderPayments();renderSuppliers();renderSupplierReport();renderReports();renderUsers();previewSale();previewPurchase();applyRole();applyLang()
 }
 
