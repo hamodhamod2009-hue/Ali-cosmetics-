@@ -540,10 +540,11 @@ let paid=cashPaid;
 const total=q*unitCost;
 const oldCredits=d.purchases.filter(p=>
 
-  (p.name||'').trim().toLowerCase()===name.trim().toLowerCase() &&
+String(p.name||'').replace(/\s+/g,'').toLowerCase()===
 
-  (p.cur||'IQD')===cur &&
+String(name||'').replace(/\s+/g,'').toLowerCase() &&
 
+String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase() &&
   Number(p.credit||0)>0
 
 );
