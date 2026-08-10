@@ -463,16 +463,35 @@ function previewPurchase(){
 
   const cost=Number($('purchaseUnitCost').value)||0;
 
-  const paid=Math.max(0,Number($('purchasePaid').value)||0);
+const cashPaid=Math.max(0,Number($('purchasePaid').value)||0);
 
-  const total=q*cost;
+const total=q*cost;
 
-  const cur=$('purchaseCur').value;
+const cur=$('purchaseCur').value;
 
-  const remaining=Math.max(0,total-paid);
+const name=$('purchaseSupplier').value.trim();
 
-  const credit=Math.max(0,paid-total);
+const availableCredit=d.purchases
 
+.filter(p=>
+
+  String(p.name||'').replace(/\s+/g,'').toLowerCase()===
+
+  String(name||'').replace(/\s+/g,'').toLowerCase() &&
+
+  String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase()
+
+)
+
+.reduce((s,p)=>s+Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0),0);
+
+const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
+
+const paid=cashPaid+usedCredit;
+
+const remaining=Math.max(0,total-paid);
+
+const credit=Math.max(0,paid-total);
   let balance='';
 
   if(credit>0){
