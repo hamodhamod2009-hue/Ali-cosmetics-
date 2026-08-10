@@ -263,7 +263,7 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 <div><label>نوع الزبون</label><select id="customerType" onchange="previewSale()"><option value="retail">زبون محل</option><option value="wholesale">زبون تاجر</option></select></div>
   <div><label>البراند</label><select id="saleBrand" onchange="updateSaleItems()"></select></div>
 <div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div>
-<div><label>الكمية</label><input id="sqty" type="number" min="1" value="1" oninput="previewSale()"></div>
+
 <div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
 <div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div>
 <div><label>تاريخ استحقاق الدين</label><input id="dueDate" type="date"></div>
@@ -440,7 +440,39 @@ function editProductPrices(id){
  if(!Number.isFinite(r)||!Number.isFinite(w)||r<=Number(p.b)||w<=Number(p.b)){alert('سعر البيع يجب أن يكون أعلى من سعر الشراء');return}
  p.s=r;p.wholesaleSell=w;save();alert('تم تحديث الأسعار')
 }
-function currentSaleValues(){const p=d.products.find(x=>x.id==Number($('spick').value)),q=Number($('sqty').value)||0,type=$('customerType')?.value||'retail',unit=p?(type==='wholesale'?Number(p.wholesaleSell||p.s):Number(p.s||0)):0,total=p?q*unit:0,paid=Math.max(0,Number($('paidNow').value)||0);return {p,q,total,paid,remaining:Math.max(0,total-paid),unit,type}}
+function currentSaleValues(){
+
+  const p=d.products.find(x=>x.id==Number($('spick').value)),
+
+        q=1,
+
+        type=$('customerType')?.value||'retail',
+
+        unit=p?(type==='wholesale'?Number(p.wholesaleSell||p.s):Number(p.s||0)):0,
+
+        total=p?q*unit:0,
+
+        paid=Math.max(0,Number($('paidNow').value)||0);
+
+  return {
+
+    p,
+
+    q,
+
+    total,
+
+    paid,
+
+    remaining:Math.max(0,total-paid),
+
+    unit,
+
+    type
+
+  };
+
+}
   function updateSaleItems(){const b=$('saleBrand')?.value||'';const items=d.products.filter(p=>!p.archived&&Number(p.q)>0&&String(p.brand||'')===b);$('spick').innerHTML=items.map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر: ${num(p.q)}</option>`).join('');previewSale()}
 function previewSale(){if(!$('salePreview'))return;const v=currentSaleValues();if(!v.p){$('salePreview').textContent='لا توجد منتجات متاحة.';return}$('salePreview').innerHTML=`الإجمالي: <b>${money(v.total,v.p.cur)}</b> — المدفوع: <b>${money(Math.min(v.paid,v.total),v.p.cur)}</b> — المتبقي: <b>${money(v.remaining,v.p.cur)}</b>`}
   let saleItems=[];
@@ -738,7 +770,7 @@ function sale(){
 
   $('paidNow').value=0;
 
-  $('sqty').value=1;
+
 
   $('dueDate').value='';
 
