@@ -604,7 +604,7 @@ oldCredits.forEach(x=>{
     oldPurchase.credit=Math.max(0,Number(oldPurchase.credit||0)-use);
 
   }
-const oldDebt=d.supplierDebts.find(s=>s.purchaseId===x.purchaseId);
+const oldDebt=d.supplierDebts.find(s=>s.purchaseId===x.id || s.purchaseId===x.purchaseId);
 
 if(oldDebt){
 
