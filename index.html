@@ -604,7 +604,13 @@ oldCredits.forEach(x=>{
     oldPurchase.credit=Math.max(0,Number(oldPurchase.credit||0)-use);
 
   }
+const oldDebt=d.supplierDebts.find(s=>s.purchaseId===x.purchaseId);
 
+if(oldDebt){
+
+  oldDebt.credit=Math.max(0,Number(oldDebt.credit||0)-use);
+
+}
   creditLeft-=use;
 
 });
