@@ -391,7 +391,9 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 </main>
 </div>
 
-<script>
+
+  <script>window.onerror=function(m,s,l,c){document.getElementById('err').textContent='ERROR: '+m+' | line '+l+' : '+c;};</script>
+  <script>
 const KEY='ali_cosmetics', APP_SCHEMA=10, $=id=>document.getElementById(id);let d=load();
 function load(){
  try{
