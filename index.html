@@ -1217,7 +1217,7 @@ function setSupplierDate(){if(!$('supplierDate'))return;const today=ymd(new Date
 function addSupplierDebt(){
  if(!hasPerm('suppliers')){alert('ليس لديك صلاحية لحسابات التجار');return}
  const name=$('supplierName').value.trim(),phone=$('supplierPhone').value.trim(),amount=Number($('supplierAmount').value),paid=Number($('supplierPaid').value||0),cur=$('supplierCur').value,date=$('supplierDate').value||ymd(new Date()),due=$('supplierDue').value,note=$('supplierNote').value.trim();
- if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0||paid>amount){$('supplierMsg').textContent='تحقق من اسم التاجر والمبلغ والمدفوع';return}
+if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0){
 const id=Date.now(),row={id,name,phone,amount,paid,remaining:Math.max(0,amount-paid),credit:Math.max(0,paid-amount),cur,date,due,note};d.supplierDebts.unshift(row);
  if(paid>0)d.supplierPayments.unshift({id:id+1,debtId:id,name,amount:paid,cur,iso:new Date(date+'T12:00:00').toISOString(),note:'دفعة عند إضافة الحساب'});
  ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote'].forEach(x=>$(x).value='');$('supplierPaid').value=0;$('supplierMsg').textContent='تمت إضافة حساب التاجر';setSupplierDate();save()
