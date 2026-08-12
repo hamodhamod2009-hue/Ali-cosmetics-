@@ -1,0 +1,1384 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<title>​</title>
+<style>
+:root{--dark:#111827;--bg:#f5f6f8;--card:#fff;--muted:#6b7280;--danger:#b91c1c;--good:#047857;--blue:#2563eb;--warn:#b45309}
+*{box-sizing:border-box}body{font-family:Arial,Tahoma,sans-serif;background:var(--bg);margin:0;color:#222}
+header{background:var(--dark);color:#fff;padding:18px}header h1{margin:0 0 4px}
+main{max-width:1200px;margin:auto;padding:14px}.card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0001}
+.grid,.stats,.filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+label{display:block;font-size:13px;font-weight:bold;margin:6px 0}input,select,textarea,button{width:100%;padding:12px;border-radius:9px;border:1px solid #ccc;font-size:16px}textarea{min-height:80px;resize:vertical}
+button{background:var(--dark);color:#fff;border:0;font-weight:bold;margin-top:10px;cursor:pointer}.danger{background:var(--danger)}.good{background:var(--good)}.blue{background:var(--blue)}.warn{background:var(--warn)}
+.hidden{display:none!important}.nav{display:flex;gap:8px;overflow:auto;margin-bottom:14px}.nav button{background:#fff;color:#111;border:1px solid #ccc;white-space:nowrap;min-width:max-content;margin:0}
+.nav button.active{background:var(--dark);color:#fff}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:9px;border-bottom:1px solid #eee;text-align:right;vertical-align:top}
+th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}.muted{color:var(--muted);font-size:13px}.stat{font-size:23px;font-weight:bold;margin-top:4px}.goodText{color:var(--good)}.dangerText{color:var(--danger)}
+.note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px}.row-actions{display:flex;gap:6px;flex-wrap:wrap}.row-actions button{padding:7px 10px;margin:0;width:auto;font-size:13px}
+.badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:bold}.paid{background:#d1fae5;color:#065f46}.partial{background:#fef3c7;color:#92400e}.unpaid{background:#fee2e2;color:#991b1b}
+.req{color:var(--danger)}.top-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top-tools button{width:auto;margin:0;padding:8px 12px;background:#fff;color:#111}.low-stock{background:#fff7ed;color:#9a3412}.admin-only.hidden-role{display:none!important}#login{max-width:420px;margin:10vh auto}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="login" class="card"><div class="top-tools" style="justify-content:flex-end"><button type="button" onclick="toggleLang()" id="loginLangBtn">English</button></div>
+<h1>&nbsp;</h1><p class="muted">نظام البراندات والآيتمات والمخزون والمبيعات والديون</p>
+<label>اسم المستخدم</label><input id="u" value="admin">
+<label>كلمة المرور</label><input id="pw" type="password" value="admin123">
+<button onclick="doLogin()">تسجيل الدخول</button>
+<p class="muted">بيانات المدير: admin / admin123<br>بيانات الموظف: employee / 1234</p>
+</div>
+
+<div id="app" class="hidden">
+<header><div class="section-title"><div><h1 aria-label="نظام إدارة المحل">&nbsp;</h1><small>إدارة المشتريات والمخزون والمبيعات والزبائن والتجار والتقارير</small></div><div class="top-tools"><span id="roleLabel"></span><button type="button" onclick="toggleLang()" id="langBtn">English</button></div></div></header>
+<main>
+<div class="nav">
+<button class="active" onclick="tab('home',this)">الرئيسية</button>
+<button onclick="tab('products',this)">المنتجات والمخزون</button>
+<button onclick="tab('purchases',this)">شراء البضاعة</button>
+<button onclick="tab('sales',this)">المبيعات</button>
+<button onclick="tab('debts',this)">قائمة الديون</button>
+<button onclick="tab('payments',this)">المدفوعات</button>
+<button onclick="tab('suppliers',this)">حسابات التجار</button>
+<button onclick="tab('reports',this)">التقارير والأرباح</button>
+<button class="admin-only" onclick="tab('users',this)">المستخدمون والصلاحيات</button>
+<button onclick="location.reload()">خروج</button>
+</div>
+
+<section id="home">
+<div class="stats">
+<div class="card"><div class="muted">عدد المنتجات</div><div id="sp" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي المخزون</div><div id="stockQty" class="stat">0</div></div>
+<div class="card"><div class="muted">عمليات البيع</div><div id="ss" class="stat">0</div></div>
+<div class="card"><div class="muted">ديون الزبائن</div><div id="homeDebt" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">المطلوب للتجار</div><div id="homeSupplierDebt" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">مشتريات البضاعة</div><div id="homePurchases" class="stat">0</div></div>
+<div class="card low-stock"><div class="muted">آيتمات منخفضة المخزون</div><div id="lowStockCount" class="stat">0</div></div>
+</div>
+<div class="card"><h2>تنبيهات المخزون</h2><div id="lowStockList" class="muted">لا توجد تنبيهات.</div></div>
+<div class="card"><h2>ملخص سريع</h2>
+<p>كل عملية بيع تحتاج اسم زبون إجباري. إذا لم يُدفع المبلغ بالكامل تظهر الفاتورة تلقائياً في قائمة الديون، وعند إكمال الدفع تصبح مدفوعة بالكامل.</p>
+<p class="note">البيانات محفوظة في متصفح الجهاز. نزّل نسخة احتياطية بصورة منتظمة، خصوصاً قبل أي تحديث.</p></div>
+</section>
+
+<section id="products" class="hidden">
+<div class="card"><h2>إضافة آيتم داخل براند</h2><p class="muted">تقدر تضيف عدد غير محدود من الآيتمات لكل براند، حتى لو كان البراند يحتوي 40 آيتم أو أكثر.</p><div class="grid">
+<div><label>اسم البراند <span class="muted">(اختياري)</span></label><input id="brand" placeholder="مثال: Golden Rose"></div>
+<div><label>اسم الآيتم <span class="req">*</span></label><input id="name" placeholder="مثال: Foundation 101"></div>
+<div><label>كود الآيتم</label><input id="itemCode" placeholder="مثال: GR-F101"></div>
+<div><label>الباركود</label><input id="barcode" inputmode="numeric" placeholder="اختياري"></div>
+<div><label>التصنيف</label><input id="cat" placeholder="مثال: فاونديشن"></div>
+<div><label>سعر الشراء</label><input id="buy" type="number" min="0" step=".01"></div>
+<div><label>سعر بيع زبون المحل</label><input id="sell" type="number" min="0" step=".01"></div>
+<div><label>سعر بيع التاجر</label><input id="wholesaleSell" type="number" min="0" step=".01" placeholder="إذا فارغ يستخدم سعر المحل"></div>
+<div><label>الكمية</label><input id="qty" type="number" min="0" step="1"></div>
+<div><label>حد التنبيه للمخزون</label><input id="minStock" type="number" min="0" step="1" value="3"></div>
+<div><label>العملة</label><select id="cur"><option selected>IQD</option><option>USD</option><option>AUD</option></select></div>
+</div><button onclick="addProduct()">إضافة الآيتم للبراند</button><p id="pm" class="muted"></p></div>
+<div class="card"><div class="section-title"><h2>المخزون حسب البراند والآيتم</h2><input id="productSearch" style="max-width:420px" placeholder="بحث بالبراند أو الآيتم أو الكود أو الباركود" oninput="renderProducts()"></div><div class="wrap"><table>
+<thead><tr><th>البراند</th><th>الآيتم</th><th>الكود / الباركود</th><th>التصنيف</th><th>الكمية</th><th>حد التنبيه</th><th>شراء</th><th>بيع محل</th><th>بيع تاجر</th><th>العملة</th><th>الإجراء</th></tr></thead><tbody id="pb"></tbody>
+</table></div></div>
+</section>
+
+<section id="purchases" class="hidden">
+
+  <div class="card">
+
+    <h2>شراء بضاعة من تاجر</h2>
+
+    <p class="muted">
+
+      سجل الشراء، ويتم تسجيل حساب التاجر والمبلغ المتبقي تلقائياً.
+
+    </p>
+
+    <div class="grid">
+
+      <div>
+
+        <label>اسم التاجر <span class="req">*</span></label>
+
+        <input id="purchaseSupplier">
+
+      </div>
+
+      <div>
+
+        <label>رقم الهاتف</label>
+
+        <input id="purchasePhone" inputmode="tel">
+
+      </div>
+
+      <div>
+
+        <label>اسم البراند <span class="req">*</span></label>
+
+        <select id="purchaseBrand"></select>
+
+      </div>
+
+      <div>
+
+        <label>الكمية <span class="req">*</span></label>
+
+        <input id="purchaseQty" type="number" min="1" step="1" value="1">
+
+      </div>
+
+      <div>
+
+        <label>سعر شراء القطعة <span class="req">*</span></label>
+
+<input id="purchaseUnitCost" type="number" min="0" step="0.01" oninput="previewPurchase()">
+
+      </div>
+
+      <div>
+
+        <label>المدفوع الآن</label>
+
+<input id="purchasePaid" type="number" min="0" step="0.01" value="0" oninput="previewPurchase()">
+
+</div>
+
+<div>
+
+  <label>العملة</label>
+
+  <select id="purchaseCur">
+
+    <option value="IQD" selected>IQD</option>
+
+  </select>
+
+</div>
+
+<div>
+
+  <label>تاريخ الشراء</label>
+
+  <input id="purchaseDate" type="date">
+
+</div>
+
+<div>
+
+  <label>تاريخ الاستحقاق</label>
+
+  <input id="purchaseDue" type="date">
+
+</div>
+
+<div>
+
+  <label>رقم فاتورة التاجر</label>
+
+  <input id="supplierInvoiceNo">
+
+</div>
+
+<div>
+
+  <label>ملاحظات</label>
+
+  <input id="purchaseNote" placeholder="اختياري">
+
+</div>
+
+</div>
+
+<div id="purchasePreview" class="note" style="margin-top:12px">
+
+  اختر البراند وأدخل الكمية وسعر الشراء لعرض الإجمالي.
+
+</div>
+
+<button onclick="addPurchase()">تسجيل الشراء</button>
+
+<p id="purchaseMsg" class="muted"></p>
+</div>
+
+<div class="card">
+
+  <div class="section-title">
+
+    <h2>سجل المشتريات</h2>
+
+    <input id="purchaseSearch" placeholder="بحث باسم التاجر أو الهاتف أو رقم الفاتورة">
+
+  </div>
+
+  <div class="wrap">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>رقم الفاتورة</th>
+
+          <th>التاجر</th>
+
+          <th>الهاتف</th>
+
+          <th>البراند</th>
+
+          <th>الكمية</th>
+
+          <th>سعر الشراء</th>
+
+          <th>الإجمالي</th>
+
+          <th>المدفوع</th>
+
+          <th>المتبقي</th>
+
+          <th>تاريخ الشراء</th>
+
+          <th>تاريخ الاستحقاق</th>
+
+          <th>إجراء</th>
+
+        </tr>
+
+      </thead>
+
+      <tbody id="purchaseBody"></tbody>
+
+    </table>
+
+  </div>
+
+</div>
+
+</section>
+<section id="sales" class="hidden">
+<div class="card"><h2>تسجيل بيع جديد</h2><div class="grid">
+<div><label>اسم الزبون <span class="req">*</span></label><input id="customerName" placeholder="إجباري"></div>
+<div><label>رقم الهاتف</label><input id="customerPhone" inputmode="tel" placeholder="اختياري"></div>
+<div><label>نوع الزبون</label><select id="customerType" onchange="previewSale()"><option value="retail">زبون محل</option><option value="wholesale">زبون تاجر</option></select></div>
+  <div><label>البراند</label><select id="saleBrand" onchange="updateSaleItems()"></select></div>
+<div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div>
+
+<div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
+<div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div>
+<div><label>تاريخ استحقاق الدين</label><input id="dueDate" type="date"></div>
+<div><label>ملاحظات</label><input id="saleNote" placeholder="اختياري"></div>
+  <button type="button" onclick="addSaleItem()">+ إضافة آيتم للفاتورة</button>
+
+<div id="saleItemsList" class="note" style="margin-top:10px">لم تتم إضافة آيتمات بعد</div>
+</div>
+<div id="salePreview" class="note" style="margin-top:12px">اختر المنتج والكمية لعرض الإجمالي.</div>
+<button onclick="sale()">تسجيل الفاتورة</button><p id="sm" class="muted"></p></div>
+<div class="card"><div class="section-title"><h2>سجل الفواتير</h2><input id="salesSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو رقم الفاتورة" oninput="renderSales()"></div><div class="wrap"><table>
+<thead><tr><th>الفاتورة</th><th>الوقت</th><th>الزبون</th><th>المنتج</th><th>الكمية</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="sb"></tbody>
+</table></div></div>
+</section>
+
+<section id="debts" class="hidden">
+<div class="stats">
+<div class="card"><div class="muted">عدد الفواتير المطلوبة</div><div id="debtCount" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي الديون</div><div id="debtTotal" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">عدد الزبائن المطلوبين</div><div id="debtCustomers" class="stat">0</div></div>
+<div class="card"><div class="muted">الديون المتأخرة</div><div id="overdueTotal" class="stat dangerText">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>قائمة الديون</h2><input id="debtSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو الهاتف أو الفاتورة" oninput="renderDebts()"></div><div class="wrap"><table>
+<thead><tr><th>الفاتورة</th><th>الزبون</th><th>نوع الزبون</th><th>الهاتف</th><th>تاريخ البيع</th><th>الاستحقاق</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>تسجيل دفعة</th></tr></thead><tbody id="debtBody"></tbody>
+</table></div></div>
+<div class="card"><h2>ملخص الديون حسب الزبون</h2><div class="wrap"><table>
+<thead><tr><th>الزبون</th><th>الهاتف</th><th>عدد الفواتير</th><th>إجمالي المتبقي</th></tr></thead><tbody id="customerDebtBody"></tbody>
+</table></div></div>
+</section>
+
+<section id="payments" class="hidden">
+<div class="stats">
+<div class="card"><div class="muted">عدد الدفعات</div><div id="paymentCount" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي المبالغ المستلمة</div><div id="paymentTotal" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">فواتير مدفوعة بالكامل</div><div id="paidInvoiceCount" class="stat">0</div></div>
+<div class="card"><div class="muted">فواتير مدفوعة جزئياً</div><div id="partialInvoiceCount" class="stat">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>سجل المدفوعات</h2><input id="paymentSearch" style="max-width:340px" placeholder="بحث باسم الزبون أو الفاتورة" oninput="renderPayments()"></div><div class="wrap"><table>
+<thead><tr><th>تاريخ الدفع</th><th>الفاتورة</th><th>الزبون</th><th>المبلغ</th><th>العملة</th><th>ملاحظة</th></tr></thead><tbody id="paymentBody"></tbody>
+</table></div></div>
+</section>
+
+
+<section id="suppliers" class="hidden">
+<div class="card"><h2>إضافة حساب تاجر</h2><p class="muted">هذا القسم مستقل عن الزبائن والمبيعات، ويسجل المبالغ التي يطلبها التجار من المحل.</p><div class="grid">
+<div><label>اسم التاجر <span class="req">*</span></label><input id="supplierName"></div>
+<div><label>رقم الهاتف</label><input id="supplierPhone" inputmode="tel"></div>
+<div><label>المبلغ الأصلي <span class="req">*</span></label><input id="supplierAmount" type="number" min="0.01" step=".01"></div>
+<div><label>المدفوع أولاً</label><input id="supplierPaid" type="number" min="0" step=".01" value="0"></div>
+<div><label>العملة</label><select id="supplierCur"><option selected>IQD</option><option>USD</option><option>AUD</option></select></div>
+<div><label>تاريخ الدين</label><input id="supplierDate" type="date"></div>
+<div><label>تاريخ الاستحقاق</label><input id="supplierDue" type="date"></div>
+<div><label>ملاحظات</label><input id="supplierNote"></div>
+</div><button onclick="addSupplierDebt()">إضافة حساب التاجر</button><p id="supplierMsg" class="muted"></p></div>
+<div class="stats">
+<div class="card"><div class="muted">إجمالي ديون التجار</div><div id="supplierTotal" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">إجمالي ما دفعه المحل</div><div id="supplierPaidTotal" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبلغ المتبقي</div><div id="supplierRemaining" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">عدد التجار المطلوبين</div><div id="supplierCount" class="stat">0</div></div>
+</div>
+<div class="card"><div class="section-title"><h2>حسابات التجار الحالية</h2><input id="supplierSearch" style="max-width:340px" placeholder="بحث باسم التاجر أو الهاتف أو رقم الفاتورة" oninput="renderSuppliers()"></div><div class="wrap"><table>
+<thead><tr><th>التاجر</th><th>الهاتف</th><th>تاريخ الدين</th><th>الاستحقاق</th><th>المبلغ الأصلي</th><th>المدفوع</th><th>المتبقي</th><th>الحالة</th><th>الإجراء</th></tr></thead><tbody id="supplierBody"></tbody>
+</table></div></div>
+<div class="card"><h2>تقرير دفعات التجار</h2><div class="filters">
+<div><label>من تاريخ</label><input id="supplierFrom" type="date"></div>
+<div><label>إلى تاريخ</label><input id="supplierTo" type="date"></div>
+<div><button onclick="renderSupplierReport()">عرض التقرير</button></div>
+<div><button class="blue" onclick="clearSupplierRange()">كل الفترات</button></div>
+</div><div class="stats">
+<div class="card"><div class="muted">المدفوع ضمن الفترة</div><div id="supplierReportPaid" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">عدد الدفعات</div><div id="supplierReportCount" class="stat">0</div></div>
+</div><div class="wrap"><table>
+<thead><tr><th>تاريخ الدفع</th><th>التاجر</th><th>المبلغ</th><th>العملة</th><th>ملاحظة</th></tr></thead><tbody id="supplierPaymentBody"></tbody>
+</table></div></div>
+</section>
+
+<section id="reports" class="hidden">
+<div class="card"><h2>التقارير والأرباح</h2><div class="filters">
+<div><label>نوع التقرير</label><select id="reportType" onchange="setReportRange()"><option value="daily">يومي</option><option value="monthly">شهري</option><option value="yearly">سنوي</option><option value="custom">فترة مخصصة</option><option value="all">كل المبيعات</option></select></div>
+<div><label>من تاريخ</label><input id="fromDate" type="date"></div>
+<div><label>إلى تاريخ</label><input id="toDate" type="date"></div>
+<div><button onclick="renderReports()">عرض التقرير</button></div>
+<div><button class="blue" onclick="printCurrentReport()">طباعة التقرير</button></div>
+</div></div>
+<div class="stats">
+<div class="card"><div class="muted">إجمالي المبيعات</div><div id="rRevenue" class="stat">0</div></div>
+<div class="card"><div class="muted">تكلفة البضاعة</div><div id="rCost" class="stat">0</div></div>
+<div class="card"><div class="muted">صافي الربح</div><div id="rProfit" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبالغ المستلمة</div><div id="rReceived" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">المبالغ المتبقية</div><div id="rRemaining" class="stat dangerText">0</div></div>
+<div class="card"><div class="muted">القطع المباعة</div><div id="rQty" class="stat">0</div></div>
+</div>
+<div class="card"><h2>تفاصيل التقرير</h2><div id="reportCaption" class="muted"></div><div class="wrap"><table>
+<thead><tr><th>الفاتورة</th><th>التاريخ</th><th>الزبون</th><th>النوع</th><th>المنتج</th><th>الكمية</th><th>المبيعات</th><th>التكلفة</th><th>الربح</th><th>المدفوع</th><th>المتبقي</th><th>العملة</th></tr></thead><tbody id="reportBody"></tbody>
+</table></div></div>
+<div class="card"><h2>نسخة احتياطية</h2><div class="grid">
+<button class="good" onclick="exportData()">تنزيل نسخة احتياطية</button>
+<button class="blue" onclick="restoreLatestSnapshot()">استرجاع آخر حفظ تلقائي محلي</button>
+<div><label>استرجاع نسخة من ملف</label><input type="file" accept=".json,application/json" onchange="importData(event)"></div>
+<p class="note" style="grid-column:1/-1">الحفظ التلقائي المحلي يحتفظ بآخر 10 تغييرات داخل نفس المتصفح. النسخة التي تنزلها كملف JSON هي النسخة الاحتياطية الآمنة للنقل إلى جهاز آخر.</p>
+</div></div>
+</section>
+
+<section id="users" class="hidden admin-only">
+<div class="card"><h2>المستخدمون وصلاحيات العمال</h2><p class="muted">أنشئ حساب لكل عامل وحدد الأقسام التي يقدر يدخل عليها. حساب المدير يبقى بكامل الصلاحيات.</p>
+<div class="grid">
+<div><label>اسم المستخدم <span class="req">*</span></label><input id="newUsername" placeholder="مثال: cashier1"></div>
+<div><label>كلمة المرور <span class="req">*</span></label><input id="newPassword" type="password"></div>
+<div><label>اسم العامل</label><input id="newDisplayName" placeholder="اختياري"></div>
+</div>
+<div class="card" style="box-shadow:none;border:1px solid #eee;margin-top:12px"><b>الصلاحيات</b><div class="grid" style="margin-top:8px">
+<label><input style="width:auto" type="checkbox" class="permBox" value="products"> المنتجات والمخزون</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="purchases"> شراء البضاعة</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="sales" checked> المبيعات</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="debts" checked> قائمة الديون</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="payments" checked> المدفوعات</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="suppliers"> حسابات التجار</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="reports"> التقارير والأرباح</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="editPrices"> تعديل الأسعار</label>
+<label><input style="width:auto" type="checkbox" class="permBox" value="delete"> الحذف</label>
+</div></div>
+<button class="good" onclick="addUser()">إضافة العامل</button><p id="userMsg" class="muted"></p></div>
+<div class="card"><h2>الحسابات الحالية</h2><div class="wrap"><table><thead><tr><th>المستخدم</th><th>اسم العامل</th><th>الصلاحيات</th><th>الإجراء</th></tr></thead><tbody id="usersBody"></tbody></table></div></div>
+</section>
+</main>
+</div>
+
+
+  <script>window.onerror=function(m,s,l,c){document.getElementById('err').textContent='ERROR: '+m+' | line '+l+' : '+c;};</script>
+  <script>
+const KEY='ali_cosmetics', APP_SCHEMA=10, $=id=>document.getElementById(id);let d=load();
+function load(){
+ try{
+  const x=JSON.parse(localStorage.getItem(KEY)||'{"products":[],"sales":[],"payments":[],"supplierDebts":[],"supplierPayments":[],"purchases":[],"nextInvoice":1001}');
+  x.products=Array.isArray(x.products)?x.products:[];x.sales=Array.isArray(x.sales)?x.sales:[];x.payments=Array.isArray(x.payments)?x.payments:[];x.supplierDebts=Array.isArray(x.supplierDebts)?x.supplierDebts:[];x.supplierPayments=Array.isArray(x.supplierPayments)?x.supplierPayments:[];x.purchases=Array.isArray(x.purchases)?x.purchases:[];x.users=Array.isArray(x.users)?x.users:[];if(!x.users.some(u=>u.username==='employee'))x.users.push({id:2,username:'employee',password:'1234',displayName:'الموظف',perms:['sales','debts','payments']});
+  x.purchases=x.purchases.map(v=>({...v,cur:v.cur||'IQD',paid:Number(v.paid||0),total:Number(v.total||0),remaining:Math.max(0,Number.isFinite(Number(v.remaining))?Number(v.remaining):Number(v.total||0)-Number(v.paid||0))}));x.supplierDebts=x.supplierDebts.map(v=>({...v,cur:v.cur||'IQD',amount:Number(v.amount||0),paid:Number(v.paid||0),remaining:Math.max(0,Number.isFinite(Number(v.remaining))?Number(v.remaining):Number(v.amount||0)-Number(v.paid||0))}));x.payments=x.payments.map(v=>({...v,cur:v.cur||'IQD',amount:Number(v.amount||0)}));x.supplierPayments=x.supplierPayments.map(v=>({...v,cur:v.cur||'IQD',amount:Number(v.amount||0)}));
+  x.products=x.products.map(p=>({...p,brand:p.brand||'',code:p.code||'',barcode:p.barcode||'',minStock:Number.isFinite(Number(p.minStock))?Number(p.minStock):3,wholesaleSell:Number.isFinite(Number(p.wholesaleSell))?Number(p.wholesaleSell):Number(p.s||0),archived:Boolean(p.archived)}));
+  x.sales=x.sales.map((s,i)=>{
+   const q=Number(s.q)||0,total=Number(s.total)||0,p=x.products.find(p=>p.n===s.n),unitBuy=Number.isFinite(Number(s.unitBuy))?Number(s.unitBuy):(p?Number(p.b)||0:0),cost=Number.isFinite(Number(s.cost))?Number(s.cost):q*unitBuy,profit=Number.isFinite(Number(s.profit))?Number(s.profit):total-cost;
+   let iso=s.iso||'';if(!iso&&s.t){const a=new Date(s.t);if(!isNaN(a))iso=a.toISOString()}if(!iso)iso=new Date().toISOString();
+   const paid=Number.isFinite(Number(s.paid))?Math.max(0,Math.min(total,Number(s.paid))):total;
+   return {...s,id:s.id||Date.now()+i,invoiceNo:Number(s.invoiceNo)||1001+i,iso,q,total,unitBuy,cost,profit,cur:s.cur||'IQD',customerName:s.customerName||'زبون قديم',customerPhone:s.customerPhone||'',paid,remaining:Math.max(0,total-paid),dueDate:s.dueDate||'',note:s.note||'',customerType:s.customerType||'retail'};
+  });
+  if(!x.payments.length){x.sales.forEach(s=>{if(s.paid>0)x.payments.push({id:s.id+1,saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount:s.paid,cur:s.cur,iso:s.iso,note:'دفعة مسجلة من النسخة السابقة'})})}
+  const maxInv=x.sales.reduce((m,s)=>Math.max(m,Number(s.invoiceNo)||0),1000);x.nextInvoice=Math.max(Number(x.nextInvoice)||1001,maxInv+1);return x;
+ }catch{return {products:[],sales:[],payments:[],supplierDebts:[],supplierPayments:[],purchases:[],users:[{id:2,username:'employee',password:'1234',displayName:'الموظف',perms:['sales','debts','payments']}],nextInvoice:1001}}
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(d));try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');bk.unshift({at:new Date().toISOString(),data:d});localStorage.setItem(KEY+'_snapshots',JSON.stringify(bk.slice(0,10)))}catch{}render()}
+let currentRole='admin',currentUser=null,currentLang=localStorage.getItem('ali_lang')||'ar';
+const ALL_PERMS=['products','purchases','sales','debts','payments','suppliers','reports','editPrices','delete','manageUsers'];
+function hasPerm(p){return currentRole==='admin'||(currentUser&&Array.isArray(currentUser.perms)&&currentUser.perms.includes(p))}
+function doLogin(){const user=$('u').value.trim(),pass=$('pw').value;let ok=false;if(user==='admin'&&pass==='admin123'){currentRole='admin';currentUser={username:'admin',displayName:'المدير',perms:ALL_PERMS};ok=true}else{const found=(d.users||[]).find(x=>x.username===user&&x.password===pass);if(found){currentRole='employee';currentUser=found;ok=true}}if(ok){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('err').textContent='';setSaleDate();setReportRange();applyRole();render();applyLang()}else $('err').textContent=t('بيانات الدخول غير صحيحة')}
+function tab(id,b){if(id!=='home'&&id!=='users'&&!hasPerm(id)){alert('ليس لديك صلاحية للدخول إلى هذا القسم');return}if(id==='users'&&currentRole!=='admin'){alert('هذا القسم للمدير فقط');return}['home','products','purchases','sales','debts','payments','suppliers','reports','users'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports();if(id==='debts')renderDebts();if(id==='payments')renderPayments();if(id==='suppliers'){setSupplierDate();renderSuppliers();renderSupplierReport()}if(id==='purchases'){setPurchaseDate();renderPurchases();togglePurchaseProductMode();previewPurchase()}}
+function addProduct(){
+ if(!hasPerm('products')){alert('ليس لديك صلاحية لإضافة المنتجات');return}
+ const brand=$('brand').value.trim(),n=$('name').value.trim(),code=$('itemCode').value.trim(),barcode=$('barcode').value.trim(),c=$('cat').value.trim(),b=Number($('buy').value),s=Number($('sell').value),wsRaw=$('wholesaleSell').value,q=Number($('qty').value),minStock=Number($('minStock').value||0),wholesaleSell=wsRaw===''?s:Number(wsRaw);
+ if(!n||!Number.isFinite(b)||!Number.isFinite(s)||!Number.isFinite(wholesaleSell)||!Number.isInteger(q)||b<0||s<=b||wholesaleSell<=b||q<0){$('pm').textContent='تحقق من البيانات. سعر البيع للمحل والتاجر يجب أن يكون أعلى من سعر الشراء';return}
+ const duplicate=d.products.some(p=>!p.archived&&(p.brand||'').trim().toLowerCase()===brand.toLowerCase()&&(p.n||'').trim().toLowerCase()===n.toLowerCase()&&(p.code||'').trim().toLowerCase()===code.toLowerCase());
+ if(duplicate&&!confirm('هذا الآيتم موجود داخل نفس البراند. هل تريد إضافته مرة ثانية؟'))return;
+ d.products.push({id:Date.now(),brand,n,code,barcode,c,b,s,wholesaleSell,q,minStock,cur:$('cur').value,archived:false});
+ ['brand','name','itemCode','barcode','cat','buy','sell','wholesaleSell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة الآيتم داخل البراند';save()
+}
+function delProduct(id){
+ if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}
+ const p=d.products.find(x=>x.id===id);if(!p)return;
+ const used=d.sales.some(x=>x.productId===id)||d.purchases.some(x=>x.productId===id);
+ if(used){if(confirm('هذا المنتج عليه حركات سابقة، لذلك سيتم أرشفته بدل حذفه. متابعة؟')){p.archived=true;save()}}
+ else if(confirm('حذف المنتج نهائياً؟')){d.products=d.products.filter(x=>x.id!==id);save()}
+}
+function editProductPrices(id){
+ if(!hasPerm('editPrices')){alert('ليس لديك صلاحية لتغيير الأسعار');return}
+ const p=d.products.find(x=>x.id===id);if(!p)return;
+ const retail=prompt('سعر بيع زبون المحل:',p.s);if(retail===null)return;
+ const wholesale=prompt('سعر بيع التاجر:',p.wholesaleSell??p.s);if(wholesale===null)return;
+ const r=Number(retail),w=Number(wholesale);
+ if(!Number.isFinite(r)||!Number.isFinite(w)||r<=Number(p.b)||w<=Number(p.b)){alert('سعر البيع يجب أن يكون أعلى من سعر الشراء');return}
+ p.s=r;p.wholesaleSell=w;save();alert('تم تحديث الأسعار')
+}
+function currentSaleValues(){
+
+  const p=d.products.find(x=>x.id==Number($('spick').value)),
+
+        q=1,
+
+        type=$('customerType')?.value||'retail',
+
+        unit=p?(type==='wholesale'?Number(p.wholesaleSell||p.s):Number(p.s||0)):0,
+
+        total=p?q*unit:0,
+
+        paid=Math.max(0,Number($('paidNow').value)||0);
+
+  return {
+
+    p,
+
+    q,
+
+    total,
+
+    paid,
+
+    remaining:Math.max(0,total-paid),
+
+    unit,
+
+    type
+
+  };
+
+}
+  function updateSaleItems(){const b=$('saleBrand')?.value||'';const items=d.products.filter(p=>!p.archived&&Number(p.q)>0&&String(p.brand||'')===b);$('spick').innerHTML=items.map(p=>`<option value="${p.id}">${esc(p.n)} — المتوفر: ${num(p.q)}</option>`).join('');previewSale()}
+function previewSale(){
+
+  if(!$('salePreview'))return;
+
+  if(!saleItems.length){
+
+    $('salePreview').textContent='أضف آيتم للفاتورة';
+
+    return;
+
+  }
+
+  const total=saleItems.reduce((sum,x)=>sum+Number(x.total||0),0);
+
+  const paid=Math.max(0,Number($('paidNow')?.value)||0);
+
+  const remaining=Math.max(0,total-paid);
+
+  const cur=saleItems[0]?.cur || d.products.find(p=>p.id===saleItems[0]?.productId)?.cur || 'IQD';
+
+  $('salePreview').innerHTML=
+
+    `إجمالي: <b>${money(total,cur)}</b> — المدفوع: <b>${money(Math.min(paid,total),cur)}</b> — المتبقي: <b>${money(remaining,cur)}</b>`;
+
+}
+  let saleItems=[];
+
+function addSaleItem(){
+
+  const v=currentSaleValues();
+
+  if(!v.p||v.q<1||v.q>Number(v.p.q)){
+
+    alert('تحقق من المنتج والكمية');
+
+    return;
+
+  }
+
+  const existing=saleItems.find(x=>x.productId===v.p.id);
+
+  if(existing){
+
+    if(existing.q+v.q>Number(v.p.q)){
+
+      alert('الكمية أكبر من المتوفر');
+
+      return;
+
+    }
+
+    existing.q+=v.q;
+
+    existing.total=existing.q*existing.unit;
+
+  }else{
+
+    saleItems.push({
+
+      productId:v.p.id,
+
+      name:v.p.n,
+
+      brand:v.p.brand||'',
+
+      q:v.q,
+
+      unit:v.unit,
+
+      total:v.total
+
+    });
+
+  }
+
+renderSaleItems();
+
+previewSale();
+
+}
+
+
+
+function renderSaleItems(){
+
+  const el=$('saleItemsList');
+
+  if(!el)return;
+
+  if(!saleItems.length){
+
+    el.innerHTML='لم تتم إضافة آيتمات بعد';
+
+    return;
+
+  }
+
+  el.innerHTML=saleItems.map((x,i)=>
+
+    `<div>${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} = ${money(x.total,d.cur)}</div>`
+
+  ).join('');
+
+}
+function sale(){
+
+  if(!hasPerm('sales')){alert('ليس لديك صلاحية لتسجيل المبيعات');return}
+
+  const customerName=$('customerName').value.trim();
+
+  const customerPhone=$('customerPhone').value.trim();
+
+  const customerType=$('customerType').value;
+
+  const dt=new Date($('saleDate').value);
+
+  const paidRaw=Number($('paidNow').value);
+
+  const dueDate=$('dueDate').value;
+
+  const note=$('saleNote').value.trim();
+
+  if(!customerName){
+
+    $('sm').textContent='اسم الزبون إجباري';
+
+    $('customerName').focus();
+
+    return;
+
+  }
+
+  if(!saleItems.length){
+
+    $('sm').textContent='أضف آيتم واحد على الأقل للفاتورة';
+
+    return;
+
+  }
+
+  if(isNaN(dt)||!Number.isFinite(paidRaw)||paidRaw<0){
+
+    $('sm').textContent='تحقق من التاريخ والمبلغ المدفوع';
+
+    return;
+
+  }
+
+  const total=saleItems.reduce((sum,x)=>sum+Number(x.total||0),0);
+
+  if(paidRaw>total){
+
+    $('sm').textContent='المبلغ المدفوع لا يمكن أن يكون أكبر من إجمالي الفاتورة';
+
+    return;
+
+  }
+
+  if(paidRaw<total&&!dueDate){
+
+    $('sm').textContent='حدد تاريخ استحقاق الدين';
+
+    return;
+
+  }
+ for(const x of saleItems){
+
+    const p=d.products.find(p=>p.id===x.productId);
+
+    if(!p||Number(x.q)>Number(p.q)){
+
+      $('sm').textContent='إحدى الكميات أكبر من المخزون المتوفر';
+
+      return;
+
+    }
+
+  }
+
+  const currencies=[...new Set(saleItems.map(x=>{
+
+    const p=d.products.find(p=>p.id===x.productId);
+
+    return String(p?.cur||'IQD').trim().toUpperCase();
+
+  }))];
+
+  if(currencies.length>1){
+
+    $('sm').textContent='لا يمكن جمع منتجات بعملات مختلفة في فاتورة واحدة';
+
+    return;
+
+  }
+
+  const id=Date.now();
+
+  const invoiceNo=d.nextInvoice++;
+
+  const items=saleItems.map(x=>{
+
+    const p=d.products.find(p=>p.id===x.productId);
+
+    const q=Number(x.q)||0;
+
+    const unitSell=Number(x.unit)||0;
+
+    const itemCost=q*Number(p.b||0);
+
+    p.q-=q;
+
+    return {
+
+      productId:p.id,
+
+      n:p.n,
+
+      brand:p.brand||'',
+
+      code:p.code||'',
+
+      barcode:p.barcode||'',
+
+      q,
+
+      unitBuy:Number(p.b||0),
+
+      unitSell,
+
+      total:q*unitSell,
+
+      cost:itemCost,
+
+      cur:p.cur||'IQD'
+
+    };
+
+  });
+
+  const cost=items.reduce((sum,x)=>sum+x.cost,0);
+
+  const cur=items[0]?.cur||'IQD';
+
+  const totalQty=items.reduce((sum,x)=>sum+x.q,0);
+
+  const s={
+
+    id,
+
+    invoiceNo,
+
+    iso:dt.toISOString(),
+
+    t:fmtDate(dt),
+
+    customerName,
+
+    customerPhone,
+
+    customerType,
+
+    n:`${items.length} آيتم`,
+
+    brand:'',
+
+    productId:null,
+
+    q:totalQty,
+
+    total,
+
+    cost,
+
+    profit:total-cost,
+
+    unitBuy:0,
+
+    unitSell:0,
+
+    cur,
+
+    paid:paidRaw,
+
+    remaining:total-paidRaw,
+
+    dueDate:paidRaw<total?dueDate:'',
+
+    note,
+
+    items
+
+  };
+
+  d.sales.unshift(s);
+
+  if(paidRaw>0){
+
+    d.payments.unshift({
+
+      id:id+1,
+
+      saleId:id,
+
+      invoiceNo,
+
+      customerName,
+
+      amount:paidRaw,
+
+      cur,
+
+      iso:dt.toISOString(),
+
+      note:'دفعة عند تسجيل الفاتورة'
+
+    });
+
+  } 
+   $('sm').textContent=`تم تسجيل الفاتورة رقم ${invoiceNo}`;
+
+  ['customerName','customerPhone','saleNote'].forEach(x=>$(x).value='');
+
+  $('paidNow').value=0;
+
+
+
+  $('dueDate').value='';
+
+  saleItems=[];
+
+  renderSaleItems();
+
+  setSaleDate();
+
+  save();
+
+}
+function delSale(id){if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}const s=d.sales.find(x=>x.id===id);if(!s)return;if(confirm('حذف الفاتورة وإرجاع الكمية للمخزون وحذف دفعاتها؟')){const p=d.products.find(p=>p.id===s.productId)||d.products.find(p=>p.n===s.n);if(p)p.q+=Number(s.q)||0;d.sales=d.sales.filter(x=>x.id!==id);d.payments=d.payments.filter(x=>x.saleId!==id);save()}}
+function addPayment(id){if(!(hasPerm('payments')||hasPerm('debts'))){alert('ليس لديك صلاحية لتسجيل الدفعات');return}const s=d.sales.find(x=>x.id===id);if(!s||s.remaining<=0)return;const raw=prompt(`المتبقي على الفاتورة ${s.invoiceNo}: ${money(s.remaining,s.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>s.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';s.paid=Number(s.paid||0)+amount;s.remaining=Math.max(0,s.total-s.paid);if(s.remaining===0)s.dueDate='';d.payments.unshift({id:Date.now(),saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount,cur:s.cur,iso:new Date().toISOString(),note});save();alert(s.remaining===0?'تم تسديد الفاتورة بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
+
+function setPurchaseDate(){if(!$('purchaseDate'))return;if(!$('purchaseDate').value)$('purchaseDate').value=ymd(new Date())}
+function togglePurchaseProductMode(){const mode=$('purchaseProductMode')?.value||'existing',isNew=mode==='new';$('purchaseExistingProductWrap')?.classList.toggle('hidden',isNew);$('purchaseNewNameWrap')?.classList.toggle('hidden',!isNew);$('purchaseNewBrandWrap')?.classList.toggle('hidden',!isNew);if($('purchaseSellPrice'))$('purchaseSellPrice').placeholder=isNew?'مطلوب للمنتج الجديد':'اختياري';if(isNew)$('purchaseNewName')?.focus()}
+function previewPurchase(){
+
+  if(!$('purchasePreview'))return;
+
+  const q=Number($('purchaseQty').value)||0;
+
+  const cost=Number($('purchaseUnitCost').value)||0;
+
+const cashPaid=Math.max(0,Number($('purchasePaid').value)||0);
+
+const total=q*cost;
+
+const cur=$('purchaseCur').value;
+
+const name=$('purchaseSupplier').value.trim();
+
+const availableCredit=d.purchases
+
+.filter(p=>
+
+  String(p.name||'').replace(/\s+/g,'').toLowerCase()===
+
+  String(name||'').replace(/\s+/g,'').toLowerCase() &&
+
+  String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase()
+
+)
+
+.reduce((s,p)=>s+Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0),0);
+
+const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
+
+const paid=cashPaid+usedCredit;
+
+const remaining=Math.max(0,total-paid);
+
+const credit=Math.max(0,paid-total);
+  let balance='';
+
+  if(credit>0){
+
+    balance=`أنت تطلب التاجر: <b>${money(credit,cur)}</b>`;
+
+  }else if(remaining>0){
+
+    balance=`التاجر يطلبك: <b>${money(remaining,cur)}</b>`;
+
+  }else{
+
+    balance=`الحساب متساوي: <b>${money(0,cur)}</b>`;
+
+  }
+
+  $('purchasePreview').innerHTML=
+
+    `الإجمالي: <b>${money(total,cur)}</b> — المدفوع: <b>${money(paid,cur)}</b> — ${balance}`;
+
+}
+function addPurchase(){
+
+  if(!hasPerm('purchases')){
+
+    alert('ليس لديك صلاحية لتسجيل المشتريات');
+
+    return;
+
+  }
+
+  const name=$('purchaseSupplier').value.trim();
+
+  const phone=$('purchasePhone').value.trim();
+
+  const brand=$('purchaseBrand').value.trim();
+
+  const q=Number($('purchaseQty').value);
+
+  const unitCost=Number($('purchaseUnitCost').value);
+
+const cashPaid=Number($('purchasePaid').value||0);
+
+
+let paid=cashPaid;
+
+  const cur='IQD';
+
+  const date=$('purchaseDate').value;
+
+  const due=$('purchaseDue').value;
+
+  const invoiceNo=$('supplierInvoiceNo').value.trim();
+
+  const note=$('purchaseNote').value.trim();
+
+  if(!name || !brand || !Number.isInteger(q) || q<1 || !Number.isFinite(unitCost) || unitCost<0){
+
+    $('purchaseMsg').textContent='تحقق من اسم التاجر والبراند والكمية وسعر الشراء';
+
+    return;
+
+  }
+
+const total=q*unitCost;
+const norm=v=>String(v||'').replace(/\s+/g,'').trim().toLowerCase();
+
+const oldCredits=d.purchases.filter(p=>
+
+  norm(p.name)===norm(name) &&
+
+  String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase() &&
+
+  Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0)>0
+
+);
+
+oldCredits.forEach(p=>{
+
+  p.credit=Math.max(
+
+    Number(p.credit||0),
+
+    Number(p.paid||0)-Number(p.total||0),
+
+    0
+
+  );
+
+});
+
+const availableCredit=oldCredits.reduce(
+
+  (sum,p)=>sum+Number(p.credit||0),
+
+  0
+
+);
+
+const usedCredit=Math.min(
+
+  availableCredit,
+
+  Math.max(total-cashPaid,0)
+
+);
+
+paid=cashPaid+usedCredit;
+
+let creditLeft=usedCredit;
+
+oldCredits.forEach(x=>{
+
+  if(creditLeft<=0)return;
+
+  const use=Math.min(Number(x.credit||0),creditLeft);
+
+  x.credit=Math.max(0,Number(x.credit||0)-use);
+
+  const oldDebt=d.supplierDebts.find(
+
+    s=>s.purchaseId===x.id || s.purchaseId===x.purchaseId
+
+  );
+
+  if(oldDebt){
+
+    oldDebt.credit=Math.max(0,Number(oldDebt.credit||0)-use);
+
+  }
+
+  creditLeft-=use;
+
+});
+  
+
+if(paid<0){
+
+  $('purchaseMsg').textContent='المبلغ المدفوع لا يمكن أن يكون سالباً';
+
+  return;
+
+}
+
+const remaining=Math.max(total-paid,0);
+
+const credit=Math.max(paid-total,0);
+
+  if(remaining>0 && !due){
+
+    $('purchaseMsg').textContent='حدد تاريخ استحقاق المبلغ المتبقي';
+
+    return;
+
+  }
+
+  const id=Date.now();
+
+  d.purchases.unshift({
+
+    id,
+
+    name,
+
+    phone,
+
+    brand,
+
+    q,
+
+    unitCost,
+
+    total,
+
+    paid,
+
+    remaining,
+credit,
+    cur,
+
+    date,
+
+    due,
+
+    invoiceNo,
+
+    note,
+
+    iso:new Date().toISOString()
+
+  });
+
+if(remaining>0 || credit>0){
+
+  d.supplierDebts.unshift({
+
+    id:id+1,
+
+    purchaseId:id,
+
+    name,
+
+    phone,
+
+    amount:total,
+
+    paid,
+
+    remaining,
+credit,
+    cur,
+
+    date,
+
+    due,
+
+    invoiceNo,
+
+    note
+
+  });
+
+}
+
+if(cashPaid>0){
+
+    d.supplierPayments.unshift({
+
+      id:id+2,
+
+      debtId:remaining>0?id+1:null,
+
+      purchaseId:id,
+
+      name,
+
+      phone,
+
+amount:cashPaid,
+
+      cur,
+
+      iso:new Date().toISOString(),
+
+      invoiceNo,
+
+      note
+
+    });
+
+  }
+
+  $('purchaseSupplier').value='';
+
+  $('purchasePhone').value='';
+
+  $('purchaseQty').value=1;
+
+  $('purchaseUnitCost').value='';
+
+  $('purchasePaid').value=0;
+
+  $('purchaseDue').value='';
+
+  $('supplierInvoiceNo').value='';
+
+  $('purchaseNote').value='';
+
+  $('purchaseMsg').textContent='تم تسجيل الشراء وتحديث حساب التاجر';
+
+  save();
+render();
+
+
+}
+function deletePurchase(id){if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}const x=d.purchases.find(v=>v.id===id);if(!x)return;if(!confirm('حذف عملية الشراء؟ لن يتم إنقاص المخزون تلقائياً حفاظاً على المبيعات اللاحقة.'))return;d.purchases=d.purchases.filter(v=>v.id!==id);const debts=d.supplierDebts.filter(v=>v.purchaseId===id);debts.forEach(v=>d.supplierPayments=d.supplierPayments.filter(p=>p.debtId!==v.id));d.supplierDebts=d.supplierDebts.filter(v=>v.purchaseId!==id);save()}
+function renderPurchases(){
+
+  if(!$('purchaseBody'))return;
+
+  const q=($('purchaseSearch')?.value||'').trim().toLowerCase();
+
+  const rows=d.purchases.filter(x=>
+
+    !q||
+
+    (x.name||'').toLowerCase().includes(q)||
+
+    (x.phone||'').toLowerCase().includes(q)||
+
+    (x.brand||'').toLowerCase().includes(q)||
+
+    (x.invoiceNo||'').toLowerCase().includes(q)
+
+  );
+
+  $('purchaseBody').innerHTML=rows.map(x=>{
+
+    const remaining=Number(x.remaining||0);
+
+    const credit=Number(x.credit||0);
+
+    const balance=
+
+      credit>0
+
+? `<b>إلنا عند التاجر ${money(credit,x.cur)}</b>`
+
+        : remaining>0
+
+          ? `<b>التاجر يطلبك ${money(remaining,x.cur)}</b>`
+
+          : `<b>0 ${esc(x.cur||'')}</b>`;
+
+    return `<tr>
+
+      <td>${esc(x.invoiceNo||'-')}</td>
+
+      <td><b>${esc(x.name||'-')}</b></td>
+
+      <td>${esc(x.phone||'-')}</td>
+
+      <td>${esc(x.brand||'-')}</td>
+
+      <td>${num(x.q)}</td>
+
+      <td>${money(x.unitCost,x.cur)}</td>
+
+      <td>${money(x.total,x.cur)}</td>
+
+      <td>${money(x.paid,x.cur)}</td>
+
+      <td>${balance}</td>
+
+      <td>${esc(x.date||'-')}</td>
+
+      <td>${esc(x.due||'-')}</td>
+
+      <td>
+
+        <div class="row-actions">
+
+          ${remaining>0?`<button class="good" onclick="payPurchase(${x.id})">تسديد دفعة</button>`:''}
+
+          ${hasPerm('delete')?`<button class="danger" onclick="deletePurchase(${x.id})">حذف</button>`:''}
+
+        </div>
+
+      </td>
+
+    </tr>`;
+
+  }).join('')||'<tr><td colspan="12">لا توجد مشتريات</td></tr>';
+
+}
+function printWindow(title,body){const w=window.open('','_blank');if(!w){alert('اسمح بالنوافذ المنبثقة للطباعة');return}w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:8px;text-align:right}h1{margin-top:0}</style></head><body><h1>${esc(title)}</h1>${body}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function printSupplierStatement(name){const debts=d.supplierDebts.filter(x=>(x.name||'').trim().toLowerCase()===name.trim().toLowerCase()),payments=d.supplierPayments.filter(x=>(x.name||'').trim().toLowerCase()===name.trim().toLowerCase());const body=`<p>إجمالي الحساب: <b>${byCurrency(debts,'amount')}</b> — المدفوع: <b>${byCurrency(debts,'paid')}</b> — المتبقي: <b>${byCurrency(debts,'remaining')}</b></p><h2>الحسابات</h2><table><tr><th>التاريخ</th><th>التفاصيل</th><th>الأصلي</th><th>المدفوع</th><th>المتبقي</th></tr>${debts.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.note||'-')}</td><td>${money(x.amount,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>${money(x.amount,x.cur)}</td><td>${esc(x.note||'-')}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب التاجر - ${name}`,body)}
+function printCustomerStatement(name){const sales=d.sales.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase()),payments=d.payments.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase());const body=`<p>إجمالي المبيعات: <b>${byCurrency(sales,'total')}</b> — المدفوع: <b>${byCurrency(sales,'paid')}</b> — المتبقي: <b>${byCurrency(sales,'remaining')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>المنتج</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th></tr>${sales.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>الفاتورة</th><th>المبلغ</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>#${x.invoiceNo}</td><td>${money(x.amount,x.cur)}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب الزبون - ${name}`,body)}
+function printCurrentReport(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للتقارير');return}const r=reportSales(),body=`<p>${esc($('reportCaption').textContent)}</p><p>المبيعات: <b>${byCurrency(r,'total')}</b> — التكلفة: <b>${byCurrency(r,'cost')}</b> — الربح: <b>${byCurrency(r,'profit')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>الزبون</th><th>المنتج</th><th>المبيعات</th><th>الربح</th></tr>${r.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc(x.customerName)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.profit,x.cur)}</td></tr>`).join('')}</table>`;printWindow('تقرير المبيعات والأرباح',body)}
+
+function setSupplierDate(){if(!$('supplierDate'))return;const today=ymd(new Date());if(!$('supplierDate').value)$('supplierDate').value=today}
+function addSupplierDebt(){
+ if(!hasPerm('suppliers')){alert('ليس لديك صلاحية لحسابات التجار');return}
+ const name=$('supplierName').value.trim(),phone=$('supplierPhone').value.trim(),amount=Number($('supplierAmount').value),paid=Number($('supplierPaid').value||0),cur=$('supplierCur').value,date=$('supplierDate').value||ymd(new Date()),due=$('supplierDue').value,note=$('supplierNote').value.trim();
+if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0){
+const id=Date.now(),row={id,name,phone,amount,paid,remaining:Math.max(0,amount-paid),credit:Math.max(0,paid-amount),cur,date,due,note};d.supplierDebts.unshift(row);
+ if(paid>0)d.supplierPayments.unshift({id:id+1,debtId:id,name,amount:paid,cur,iso:new Date(date+'T12:00:00').toISOString(),note:'دفعة عند إضافة الحساب'});
+ ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote'].forEach(x=>$(x).value='');$('supplierPaid').value=0;$('supplierMsg').textContent='تمت إضافة حساب التاجر';setSupplierDate();save()
+}
+function addSupplierPayment(id){if(!hasPerm('suppliers')){alert('ليس لديك صلاحية لتسديد حسابات التجار');return}const x=d.supplierDebts.find(v=>v.id===id);if(!x||x.remaining<=0)return;const raw=prompt(`المتبقي للتاجر ${x.name}: ${money(x.remaining,x.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>x.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';x.paid=Number(x.paid||0)+amount;x.remaining=Math.max(0,x.amount-x.paid);if(x.remaining===0)x.due='';const purchase=x.purchaseId?d.purchases.find(p=>p.id===x.purchaseId):null;if(purchase){purchase.paid=Number(purchase.paid||0)+amount;purchase.remaining=Math.max(0,Number(purchase.total)-purchase.paid);if(purchase.remaining===0)purchase.due=''}d.supplierPayments.unshift({id:Date.now(),debtId:x.id,purchaseId:x.purchaseId||null,name:x.name,invoiceNo:purchase?.invoiceNo||'',amount,cur:x.cur,iso:new Date().toISOString(),note});save();alert(x.remaining===0?'تم تسديد حساب التاجر بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
+function payPurchase(id){
+
+  if(!(hasPerm('purchases')||hasPerm('suppliers'))){
+
+    alert('ليس لديك صلاحية لتسديد فاتورة التاجر');
+
+    return;
+
+  }
+
+  const p=d.purchases.find(x=>x.id===id);
+
+  if(!p)return;
+
+  const currentRemaining=Number(p.remaining||0);
+
+  const raw=prompt(
+
+    `فاتورة التاجر ${p.invoiceNo||'-'} — المتبقي ${money(currentRemaining,p.cur)}\nأدخل مبلغ الدفعة:`
+
+  );
+
+  if(raw===null)return;
+
+  const amount=Number(raw);
+
+  if(!Number.isFinite(amount)||amount<=0){
+
+    alert('مبلغ الدفعة غير صحيح');
+
+    return;
+
+  }
+
+  const note=prompt('ملاحظة للدفعة (اختياري):')||'';
+
+  p.paid=Number(p.paid||0)+amount;
+
+  p.remaining=Math.max(0,Number(p.total)-p.paid);
+
+  p.credit=Math.max(0,p.paid-Number(p.total));
+
+  const debt=d.supplierDebts.find(x=>x.purchaseId===id);
+
+  if(debt){
+
+    debt.paid=Math.min(
+
+      Number(debt.amount||0),
+
+      Number(debt.paid||0)+amount
+
+    );
+
+    debt.remaining=Math.max(
+
+      0,
+
+      Number(debt.amount||0)-debt.paid
+
+    );
+
+    if(debt.remaining===0)debt.due='';
+
+  }
+
+  d.supplierPayments.unshift({
+
+    id:Date.now(),
+
+    debtId:debt?.id||null,
+
+    purchaseId:p.id,
+
+    name:p.name,
+
+    invoiceNo:p.invoiceNo||'',
+
+    amount,
+
+    cur:p.cur,
+
+    iso:new Date().toISOString(),
+
+    note:note||`دفعة على فاتورة ${p.invoiceNo||'-'}`
+
+  });
+
+  save();
+
+  if(p.credit>0){
+
+    alert(`تم تسجيل الدفعة. أنت تطلب التاجر ${money(p.credit,p.cur)}`);
+
+  }else if(p.remaining===0){
+
+    alert('تم تسديد فاتورة التاجر بالكامل');
+
+  }else{
+
+    alert(`تم تسجيل الدفعة. التاجر يطلبك ${money(p.remaining,p.cur)}`);
+
+  }
+
+}
+function deleteSupplierDebt(id){if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}if(confirm('حذف حساب التاجر وكل دفعاته؟')){d.supplierDebts=d.supplierDebts.filter(x=>x.id!==id);d.supplierPayments=d.supplierPayments.filter(x=>x.debtId!==id);save()}}
+
+  function renderSuppliers(){if(!$('supplierBody'))return;const q=($('supplierSearch').value||'').trim().toLowerCase(),rows=d.supplierDebts.filter(x=>{const inv=x.purchaseId?(d.purchases.find(p=>p.id===x.purchaseId)?.invoiceNo||''):'';return !q||(x.name||'').toLowerCase().includes(q)||(x.phone||'').toLowerCase().includes(q)||(x.note||'').toLowerCase().includes(q)||String(inv).toLowerCase().includes(q)}),open=rows.filter(x=>Number(x.remaining)>0 || Number(x.credit)>0),today=ymd(new Date());$('supplierTotal').textContent=byCurrency(rows,'amount');$('supplierPaidTotal').textContent=byCurrency(rows,'paid');$('supplierRemaining').textContent=byCurrency(rows,'remaining');$('supplierCount').textContent=new Set(open.map(x=>(x.name||'').trim().toLowerCase())).size;$('supplierBody').innerHTML=rows.map(x=>`<tr><td><b>${esc(x.name)}</b><br><span class="muted">${esc(x.note||'')}</span></td><td>${esc(x.phone||'-')}</td><td>${esc(x.date||'-')}</td><td>${esc(x.due||'-')}${x.remaining>0&&x.due&&x.due<today?' <span class="badge unpaid">متأخر</span>':''}</td><td>${money(x.amount,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td><b>${Number(x.credit)>0?'إلنا عند التاجر: '+money(x.credit,x.cur):money(x.remaining,x.cur)}</b></td><td>${statusBadge(x)}</td><td><div class="row-actions">${x.remaining>0?`<button class="good" onclick="addSupplierPayment(${x.id})">تسجيل دفعة</button>`:''}<button class="blue" onclick="printSupplierStatement(decodeURIComponent('${encodeURIComponent(x.name)}'))">كشف حساب</button>${hasPerm('delete')?`<button class="danger" onclick="deleteSupplierDebt(${x.id})">حذف</button>`:''}</div></td></tr>`).join('')||'<tr><td colspan="9">لا توجد حسابات تجار</td></tr>'}
+function supplierReportRows(){let rows=d.supplierPayments;const f=$('supplierFrom').value,to=$('supplierTo').value;if(f)rows=rows.filter(x=>new Date(x.iso)>=new Date(f+'T00:00:00'));if(to)rows=rows.filter(x=>new Date(x.iso)<=new Date(to+'T23:59:59.999'));return rows}
+function renderSupplierReport(){if(!$('supplierPaymentBody'))return;const rows=supplierReportRows();$('supplierReportPaid').textContent=byCurrency(rows,'amount');$('supplierReportCount').textContent=rows.length;$('supplierPaymentBody').innerHTML=rows.map(x=>`<tr><td>${esc(fmtDate(new Date(x.iso)))}</td><td><b>${esc(x.name)}</b></td><td>${num(x.amount)}</td><td>${esc(x.cur)}</td><td>${esc(x.note||'-')}</td></tr>`).join('')||'<tr><td colspan="5">لا توجد دفعات ضمن الفترة</td></tr>'}
+function clearSupplierRange(){$('supplierFrom').value='';$('supplierTo').value='';renderSupplierReport()}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function num(n){return Number(n||0).toLocaleString('en-AU',{maximumFractionDigits:2})}
+function money(n,c){return `${num(n)} ${c||''}`.trim()}
+function fmtDate(x){return new Intl.DateTimeFormat('ar-AU',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(x)}
+function setSaleDate(){const n=new Date(),l=new Date(n.getTime()-n.getTimezoneOffset()*60000);$('saleDate').value=l.toISOString().slice(0,16)}
+function ymd(x){return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
+function statusOf(s){return Number(s.remaining)<=0?'paid':Number(s.paid)>0?'partial':'unpaid'}
+function statusLabel(s){const st=statusOf(s);return st==='paid'?'مدفوع بالكامل':st==='partial'?'مدفوع جزئياً':'غير مدفوع'}
+function statusBadge(s){const st=statusOf(s);return `<span class="badge ${st}">${statusLabel(s)}</span>`}
+function setReportRange(){const t=$('reportType').value,n=new Date();let f=new Date(n),to=new Date(n);$('fromDate').disabled=$('toDate').disabled=t==='all';if(t==='all'){$('fromDate').value='';$('toDate').value='';renderReports();return}if(t==='daily'){f=to=new Date(n.getFullYear(),n.getMonth(),n.getDate())}if(t==='monthly'){f=new Date(n.getFullYear(),n.getMonth(),1);to=new Date(n.getFullYear(),n.getMonth()+1,0)}if(t==='yearly'){f=new Date(n.getFullYear(),0,1);to=new Date(n.getFullYear(),11,31)}if(t==='custom'){if(!$('fromDate').value)$('fromDate').value=ymd(new Date(n.getFullYear(),n.getMonth(),1));if(!$('toDate').value)$('toDate').value=ymd(n);return}$('fromDate').value=ymd(f);$('toDate').value=ymd(to);renderReports()}
+function reportSales(){if($('reportType').value==='all')return d.sales;if(!$('fromDate').value||!$('toDate').value)return [];const f=new Date($('fromDate').value+'T00:00:00'),to=new Date($('toDate').value+'T23:59:59.999');return d.sales.filter(s=>{const x=new Date(s.iso);return !isNaN(x)&&x>=f&&x<=to})}
+function byCurrency(rows,key){const out={};rows.forEach(s=>out[s.cur||'غير محدد']=(out[s.cur||'غير محدد']||0)+Number(s[key]||0));return Object.entries(out).map(([c,v])=>money(v,c)).join(' | ')||'0'}
+function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRevenue').textContent=byCurrency(r,'total');$('rCost').textContent=byCurrency(r,'cost');$('rProfit').textContent=byCurrency(r,'profit');$('rReceived').textContent=byCurrency(r,'paid');$('rRemaining').textContent=byCurrency(r,'remaining');$('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));$('reportCaption').textContent=$('reportType').value==='all'?'جميع عمليات البيع':`من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;$('reportBody').innerHTML=r.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.customerName)}</td><td>${s.customerType==='wholesale'?'زبون تاجر':'زبون محل'}</td><td>${esc((s.brand?s.brand+' - ':'')+s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${num(s.paid)}</td><td>${num(s.remaining)}</td><td>${esc(s.cur)}</td></tr>`).join('')||'<tr><td colspan="12">لا توجد مبيعات في هذه الفترة</td></tr>'}
+function exportData(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للنسخ الاحتياطي والتقارير');return}const blob=new Blob([JSON.stringify({app:'Store Management System',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`store-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
+function restoreLatestSnapshot(){if(currentRole!=='admin'){alert('استرجاع الحفظ التلقائي متاح للمدير فقط');return}try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');if(!bk.length){alert('لا توجد نسخة تلقائية محفوظة بعد');return}const latest=bk[0];if(!latest||!latest.data){alert('الحفظ التلقائي غير صالح');return}if(confirm(`استرجاع آخر حفظ تلقائي من ${fmtDate(new Date(latest.at))}؟`)){localStorage.setItem(KEY,JSON.stringify(latest.data));d=load();render();alert('تم استرجاع آخر حفظ تلقائي')}}catch{alert('تعذر استرجاع الحفظ التلقائي')}}
+function importData(e){if(currentRole!=='admin'){alert('استرجاع النسخة الاحتياطية متاح للمدير فقط');e.target.value='';return}const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),z=x.data||x;if(!Array.isArray(z.products)||!Array.isArray(z.sales))throw 0;if(confirm('استبدال البيانات الحالية؟')){localStorage.setItem(KEY,JSON.stringify(z));d=load();render();alert('تم الاسترجاع')}}catch{alert('الملف غير صالح')}e.target.value=''};r.readAsText(f)}
+function renderSales(){const q=($('salesSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q)||(s.n||'').toLowerCase().includes(q)||(s.brand||'').toLowerCase().includes(q)||(s.code||'').toLowerCase().includes(q)||(s.barcode||'').toLowerCase().includes(q));$('sb').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td><b>${esc(s.customerName)}</b><br><span class="muted">${esc(s.customerPhone)}</span></td><td>${esc((s.brand?s.brand+' - ':'')+s.n)}</td><td>${num(s.q)}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td>${money(s.remaining,s.cur)}</td><td>${statusBadge(s)}</td><td><div class="row-actions">${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}</div></td></tr>`).join('')||'<tr><td colspan="10">لا توجد فواتير</td></tr>'}
+function renderDebts(){const q=($('debtSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>Number(s.remaining)>0).filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q)||(s.customerPhone||'').toLowerCase().includes(q)),today=ymd(new Date());$('debtCount').textContent=rows.length;$('debtTotal').textContent=byCurrency(rows,'remaining');const names=new Set(rows.map(s=>(s.customerName||'').trim().toLowerCase()));$('debtCustomers').textContent=names.size;const overdue=rows.filter(s=>s.dueDate&&s.dueDate<today);$('overdueTotal').textContent=byCurrency(overdue,'remaining');$('debtBody').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td><b>${esc(s.customerName)}</b></td><td><span class="badge ${s.customerType==='wholesale'?'partial':'paid'}">${s.customerType==='wholesale'?'زبون تاجر':'زبون محل'}</span></td><td>${esc(s.customerPhone||'-')}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.dueDate||'-')}${s.dueDate&&s.dueDate<today?' <span class="badge unpaid">متأخر</span>':''}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td><b>${money(s.remaining,s.cur)}</b></td><td>${statusBadge(s)}</td><td><button class="good" onclick="addPayment(${s.id})">تسجيل دفعة</button></td></tr>`).join('')||'<tr><td colspan="11">لا توجد ديون حالياً</td></tr>';
+ const agg={};rows.forEach(s=>{const k=(s.customerName||'').trim().toLowerCase()+'|'+(s.customerPhone||'');if(!agg[k])agg[k]={name:s.customerName,phone:s.customerPhone,count:0,vals:{}};agg[k].count++;agg[k].vals[s.cur]=(agg[k].vals[s.cur]||0)+Number(s.remaining||0)});$('customerDebtBody').innerHTML=Object.values(agg).map(a=>`<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.phone||'-')}</td><td>${a.count}</td><td>${Object.entries(a.vals).map(([c,v])=>money(v,c)).join(' | ')}</td></tr>`).join('')||'<tr><td colspan="4">لا توجد ديون</td></tr>'}
+function renderPayments(){const q=($('paymentSearch')?.value||'').trim().toLowerCase(),rows=d.payments.filter(p=>!q||String(p.invoiceNo).includes(q)||(p.customerName||'').toLowerCase().includes(q));$('paymentCount').textContent=rows.length;$('paymentTotal').textContent=byCurrency(rows,'amount');$('paidInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='paid').length;$('partialInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='partial').length;$('paymentBody').innerHTML=rows.map(p=>`<tr><td>${esc(fmtDate(new Date(p.iso)))}</td><td>#${p.invoiceNo}</td><td><b>${esc(p.customerName)}</b></td><td>${num(p.amount)}</td><td>${esc(p.cur)}</td><td>${esc(p.note||'-')}</td></tr>`).join('')||'<tr><td colspan="6">لا توجد مدفوعات</td></tr>'}
+function renderProducts(){if(!$('pb'))return;const q=($('productSearch')?.value||'').trim().toLowerCase(),rows=d.products.filter(p=>!p.archived&&(!q||(p.brand||'').toLowerCase().includes(q)||(p.n||'').toLowerCase().includes(q)||(p.code||'').toLowerCase().includes(q)||(p.barcode||'').toLowerCase().includes(q)||(p.c||'').toLowerCase().includes(q)));rows.sort((a,b)=>(a.brand||'').localeCompare(b.brand||'',currentLang==='ar'?'ar':'en')||(a.c||'').localeCompare(b.c||'',currentLang==='ar'?'ar':'en')||(a.n||'').localeCompare(b.n||'',currentLang==='ar'?'ar':'en'));$('pb').innerHTML=rows.map(p=>`<tr class="${Number(p.q)<=Number(p.minStock||0)?'low-stock':''}"><td><b>${esc(p.brand||'-')}</b></td><td>${esc(p.n)}</td><td>${esc(p.code||'-')}<br><span class="muted">${esc(p.barcode||'')}</span></td><td>${esc(p.c)}</td><td>${num(p.q)}${Number(p.q)<=Number(p.minStock||0)?` <span class="badge partial">${t('منخفض')}</span>`:''}</td><td>${num(p.minStock||0)}</td><td>${num(p.b)}</td><td>${num(p.s)}</td><td>${num(p.wholesaleSell||p.s)}</td><td>${esc(p.cur)}</td><td><div class="row-actions">${hasPerm('editPrices')?`<button onclick="editProductPrices(${p.id})">تعديل الأسعار</button>`:''}${hasPerm('delete')?`<button class="danger" onclick="delProduct(${p.id})">أرشفة/حذف</button>`:''}</div></td></tr>`).join('')||`<tr><td colspan="10">${t('لا توجد آيتمات')}</td></tr>`;applyLang()}
+function addUser(){if(currentRole!=='admin')return;const username=$('newUsername').value.trim(),password=$('newPassword').value,displayName=$('newDisplayName').value.trim();const perms=[...document.querySelectorAll('.permBox:checked')].map(x=>x.value);if(!username||!password){$('userMsg').textContent='اسم المستخدم وكلمة المرور مطلوبان';return}if(username==='admin'||(d.users||[]).some(u=>u.username.toLowerCase()===username.toLowerCase())){$('userMsg').textContent='اسم المستخدم مستخدم مسبقاً';return}d.users.push({id:Date.now(),username,password,displayName:displayName||username,perms});$('newUsername').value='';$('newPassword').value='';$('newDisplayName').value='';$('userMsg').textContent='تم إنشاء حساب العامل';save()}
+function editUser(id){if(currentRole!=='admin')return;const u=d.users.find(x=>x.id===id);if(!u)return;const choices=[['products','المنتجات والمخزون'],['purchases','شراء البضاعة'],['sales','المبيعات'],['debts','قائمة الديون'],['payments','المدفوعات'],['suppliers','حسابات التجار'],['reports','التقارير والأرباح'],['editPrices','تعديل الأسعار'],['delete','الحذف']];const current=(u.perms||[]).join(',');const raw=prompt('اكتب رموز الصلاحيات مفصولة بفاصلة\n'+choices.map(x=>x[0]+' = '+x[1]).join('\n'),current);if(raw===null)return;u.perms=raw.split(',').map(x=>x.trim()).filter(x=>choices.some(c=>c[0]===x));const pw=prompt('كلمة المرور الجديدة (اتركها فارغة للإبقاء عليها):','');if(pw)u.password=pw;save();alert('تم تحديث صلاحيات العامل')}
+function deleteUser(id){if(currentRole!=='admin')return;if(!confirm('حذف حساب العامل؟'))return;d.users=d.users.filter(x=>x.id!==id);save()}
+function renderUsers(){if(!$('usersBody'))return;const labels={products:'المنتجات',purchases:'المشتريات',sales:'المبيعات',debts:'الديون',payments:'المدفوعات',suppliers:'التجار',reports:'التقارير',editPrices:'تعديل الأسعار',delete:'الحذف'};$('usersBody').innerHTML=(d.users||[]).map(u=>`<tr><td><b>${esc(u.username)}</b></td><td>${esc(u.displayName||'-')}</td><td>${(u.perms||[]).map(x=>`<span class="badge paid">${labels[x]||esc(x)}</span>`).join(' ')||'بدون صلاحيات'}</td><td><div class="row-actions"><button class="blue" onclick="editUser(${u.id})">تعديل</button><button class="danger" onclick="deleteUser(${u.id})">حذف</button></div></td></tr>`).join('')||'<tr><td colspan="4">لا توجد حسابات عمال</td></tr>'}
+function render(){
+ $('sp').textContent=d.products.filter(p=>!p.archived).length;$('homePurchases').textContent=byCurrency(d.purchases,'total');const low=d.products.filter(p=>!p.archived&&Number(p.q)<=Number(p.minStock||0));$('lowStockCount').textContent=low.length;$('lowStockList').innerHTML=low.length?low.map(p=>`<div>⚠️ <b>${esc((p.brand?p.brand+' — ':'')+p.n)}</b>: ${t('المتوفر')} ${num(p.q)} / ${t('حد التنبيه')} ${num(p.minStock||0)}</div>`).join(''):t('لا توجد تنبيهات.');$('stockQty').textContent=num(d.products.filter(p=>!p.archived).reduce((a,p)=>a+Number(p.q||0),0));$('ss').textContent=d.sales.length;$('homeDebt').textContent=byCurrency(d.sales.filter(s=>s.remaining>0),'remaining');$('homeSupplierDebt').textContent=byCurrency(d.supplierDebts.filter(x=>x.remaining>0),'remaining');
+ renderProducts();
+$('spick').innerHTML=d.products.filter(p=>!p.archived&&p.q>0).map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
+const brands=[...new Set(d.products.filter(p=>!p.archived&&String(p.brand||'').trim()).map(p=>String(p.brand).trim()))];
+
+$('purchaseBrand').innerHTML=brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+  $('saleBrand').innerHTML='<option value="">اختر البراند</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');updateSaleItems();updateSaleItems();renderPurchases();renderSales();renderDebts();renderPayments();renderSuppliers();renderSupplierReport();renderReports();renderUsers();previewSale();previewPurchase();applyRole();applyLang()
+}
+
+const EN={
+'نظام البراندات والآيتمات والمخزون والمبيعات والديون':'Brands, items, inventory, sales and debts system','اسم المستخدم':'Username','كلمة المرور':'Password','تسجيل الدخول':'Sign in','بيانات المدير: admin / admin123':'Admin login: admin / admin123','بيانات الموظف: employee / 1234':'Employee login: employee / 1234','إدارة المشتريات والمخزون والمبيعات والزبائن والتجار والتقارير':'Purchases, inventory, sales, customers, suppliers and reports','الرئيسية':'Home','المنتجات والمخزون':'Products & inventory','شراء البضاعة':'Stock purchases','المبيعات':'Sales','قائمة الديون':'Customer debts','المدفوعات':'Payments','حسابات التجار':'Supplier accounts','التقارير والأرباح':'Reports & profit','خروج':'Log out','عدد المنتجات':'Products','إجمالي المخزون':'Total stock','عمليات البيع':'Sales transactions','ديون الزبائن':'Customer debts','المطلوب للتجار':'Owed to suppliers','مشتريات البضاعة':'Stock purchases','آيتمات منخفضة المخزون':'Low-stock items','تنبيهات المخزون':'Stock alerts','لا توجد تنبيهات.':'No alerts.','ملخص سريع':'Quick summary','إضافة آيتم داخل براند':'Add item to brand','اسم البراند':'Brand name','اسم الآيتم':'Item name','كود الآيتم':'Item code','الباركود':'Barcode','التصنيف':'Category','سعر الشراء':'Purchase price','سعر البيع':'Sale price','الكمية':'Quantity','حد التنبيه للمخزون':'Low-stock threshold','العملة':'Currency','إضافة الآيتم للبراند':'Add item','المخزون حسب البراند والآيتم':'Inventory by brand and item','البراند':'Brand','الآيتم':'Item','الكود / الباركود':'Code / barcode','حد التنبيه':'Alert level','شراء':'Buy','بيع':'Sell','الإجراء':'Action','اسم التاجر':'Supplier name','رقم الهاتف':'Phone number','المنتج':'Product','سعر شراء القطعة':'Unit purchase cost','سعر البيع الجديد':'New sale price','المدفوع الآن':'Paid now','تاريخ الشراء':'Purchase date','تاريخ الاستحقاق':'Due date','رقم فاتورة التاجر':'Supplier invoice number','ملاحظات':'Notes','تسجيل الشراء وتحديث المخزون':'Record purchase and update stock','سجل المشتريات':'Purchase history','التاريخ':'Date','التاجر':'Supplier','سعر القطعة':'Unit price','الإجمالي':'Total','المدفوع':'Paid','المتبقي':'Remaining','تسجيل بيع جديد':'New sale','اسم الزبون':'Customer name','تاريخ ووقت البيع':'Sale date and time','المبلغ المدفوع الآن':'Amount paid now','تاريخ استحقاق الدين':'Debt due date','تسجيل الفاتورة':'Record invoice','سجل الفواتير':'Invoices','الفاتورة':'Invoice','الوقت':'Time','الزبون':'Customer','الحالة':'Status','عدد الفواتير المطلوبة':'Outstanding invoices','إجمالي الديون':'Total debts','عدد الزبائن المطلوبين':'Customers owing','الديون المتأخرة':'Overdue debts','تسجيل دفعة':'Record payment','ملخص الديون حسب الزبون':'Debt summary by customer','عدد الفواتير':'Invoices','إجمالي المتبقي':'Total remaining','عدد الدفعات':'Payments','إجمالي المبالغ المستلمة':'Total received','فواتير مدفوعة بالكامل':'Fully paid invoices','فواتير مدفوعة جزئياً':'Part-paid invoices','سجل المدفوعات':'Payment history','تاريخ الدفع':'Payment date','المبلغ':'Amount','ملاحظة':'Note','إضافة حساب تاجر':'Add supplier account','المبلغ الأصلي':'Original amount','المدفوع أولاً':'Initial payment','تاريخ الدين':'Debt date','إضافة حساب التاجر':'Add supplier account','إجمالي ديون التجار':'Total supplier debts','إجمالي ما دفعه المحل':'Total paid by shop','المبلغ المتبقي':'Remaining amount','عدد التجار المطلوبين':'Suppliers owed','حسابات التجار الحالية':'Current supplier accounts','تقرير دفعات التجار':'Supplier payment report','من تاريخ':'From date','إلى تاريخ':'To date','عرض التقرير':'Show report','كل الفترات':'All periods','المدفوع ضمن الفترة':'Paid in period','التقارير والأرباح':'Reports & profit','نوع التقرير':'Report type','يومي':'Daily','شهري':'Monthly','سنوي':'Yearly','فترة مخصصة':'Custom range','كل المبيعات':'All sales','طباعة التقرير':'Print report','إجمالي المبيعات':'Total sales','تكلفة البضاعة':'Cost of goods','صافي الربح':'Net profit','المبالغ المستلمة':'Amounts received','المبالغ المتبقية':'Amounts remaining','القطع المباعة':'Items sold','تفاصيل التقرير':'Report details','الربح':'Profit','نسخة احتياطية':'Backup','تنزيل نسخة احتياطية':'Download backup','استرجاع نسخة':'Restore backup','بحث بالبراند أو الآيتم أو الكود أو الباركود':'Search by brand, item, code or barcode','بحث باسم التاجر أو المنتج':'Search supplier or product','بحث باسم الزبون أو رقم الفاتورة':'Search customer or invoice','بحث باسم الزبون أو الهاتف أو الفاتورة':'Search customer, phone or invoice','بحث باسم التاجر أو الهاتف':'Search supplier or phone','حذف':'Delete','لا توجد آيتمات':'No items','منخفض':'Low','المتوفر':'Available','حد التنبيه':'Alert level','بيانات الدخول غير صحيحة':'Incorrect login details','المدير':'Admin','الموظف':'Employee','مدفوع بالكامل':'Fully paid','مدفوع جزئياً':'Part paid','غير مدفوع':'Unpaid','متأخر':'Overdue'
+};
+function t(x){return currentLang==='en'?(EN[x]||x):x}
+function toggleLang(){currentLang=currentLang==='ar'?'en':'ar';localStorage.setItem('ali_lang',currentLang);applyLang();render()}
+function applyLang(){document.documentElement.lang=currentLang;document.documentElement.dir=currentLang==='ar'?'rtl':'ltr';document.body.style.direction=currentLang==='ar'?'rtl':'ltr';document.querySelectorAll('th,td').forEach(e=>e.style.textAlign=currentLang==='ar'?'right':'left');document.querySelectorAll('body *').forEach(el=>{if(el.children.length===0&&el.textContent.trim()&&EN[el.textContent.trim()]){if(!el.dataset.ar)el.dataset.ar=el.textContent.trim();el.textContent=currentLang==='en'?EN[el.dataset.ar]:el.dataset.ar}['placeholder','title'].forEach(a=>{const v=el.getAttribute&&el.getAttribute(a);if(v&&EN[v]){el.dataset['ar'+a]=v;el.setAttribute(a,currentLang==='en'?EN[v]:v)}else if(currentLang==='ar'&&el.dataset&&el.dataset['ar'+a])el.setAttribute(a,el.dataset['ar'+a])})});if($('langBtn'))$('langBtn').textContent=currentLang==='ar'?'English':'العربية';if($('loginLangBtn'))$('loginLangBtn').textContent=currentLang==='ar'?'English':'العربية';if($('roleLabel'))$('roleLabel').textContent=currentRole==='admin'?t('المدير'):esc(currentUser?.displayName||t('الموظف'))}
+function applyRole(){document.querySelectorAll('.admin-only').forEach(e=>e.classList.toggle('hidden-role',currentRole!=='admin'));const map={products:'products',purchases:'purchases',sales:'sales',debts:'debts',payments:'payments',suppliers:'suppliers',reports:'reports'};document.querySelectorAll('.nav button').forEach(b=>{const m=(b.getAttribute('onclick')||'').match(/tab\('([^']+)'/);if(m&&map[m[1]])b.classList.toggle('hidden-role',!hasPerm(map[m[1]]))});document.querySelectorAll('.danger').forEach(e=>{if(currentRole!=='admin'&&!hasPerm('delete'))e.classList.add('hidden-role')})}
+applyLang();
+
+</script>
+</body></html>
