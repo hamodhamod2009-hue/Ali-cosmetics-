@@ -27,7 +27,7 @@ th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}
 <h1>&nbsp;</h1><p class="muted">نظام البراندات والآيتمات والمخزون والمبيعات والديون</p>
 <label>اسم المستخدم</label><input id="u" value="admin">
 <label>كلمة المرور</label><input id="pw" type="password" value="admin123">
-<button onclick="alert('TEST')">تسجيل الدخول</button>
+<button onclick="doLogin()">تسجيل الدخول</button>
 <p class="muted">بيانات المدير: admin / admin123<br>بيانات الموظف: employee / 1234</p>
 </div>
 
@@ -415,7 +415,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(d));try{const bk=JSON.pa
 let currentRole='admin',currentUser=null,currentLang=localStorage.getItem('ali_lang')||'ar';
 const ALL_PERMS=['products','purchases','sales','debts','payments','suppliers','reports','editPrices','delete','manageUsers'];
 function hasPerm(p){return currentRole==='admin'||(currentUser&&Array.isArray(currentUser.perms)&&currentUser.perms.includes(p))}
-function doLogin(){const user=$('u').value.trim(),pass=$('pw').value;let ok=false;if(user==='admin'&&pass==='admin123'){currentRole='admin';currentUser={username:'admin',displayName:'المدير',perms:ALL_PERMS};ok=true}else{const found=(d.users||[]).find(x=>x.username===user&&x.password===pass);if(found){currentRole='employee';currentUser=found;ok=true}}if(ok){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('err').textContent='';setSaleDate();setReportRange();applyRole();render();applyLang()}else $('err').textContent=t('بيانات الدخول غير صحيحة')}
+function doLogin(){alert('LOGIN START');const user=$('u').value.trim(),pass=$('pw').value;let
 function tab(id,b){if(id!=='home'&&id!=='users'&&!hasPerm(id)){alert('ليس لديك صلاحية للدخول إلى هذا القسم');return}if(id==='users'&&currentRole!=='admin'){alert('هذا القسم للمدير فقط');return}['home','products','purchases','sales','debts','payments','suppliers','reports','users'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports();if(id==='debts')renderDebts();if(id==='payments')renderPayments();if(id==='suppliers'){setSupplierDate();renderSuppliers();renderSupplierReport()}if(id==='purchases'){setPurchaseDate();renderPurchases();togglePurchaseProductMode();previewPurchase()}}
 function addProduct(){
  if(!hasPerm('products')){alert('ليس لديك صلاحية لإضافة المنتجات');return}
