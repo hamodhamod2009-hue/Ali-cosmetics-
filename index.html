@@ -814,7 +814,51 @@ function sale(){
   save();
 
 }
-function delSale(id){if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}const s=d.sales.find(x=>x.id===id);if(!s)return;if(confirm('حذف الفاتورة وإرجاع الكمية للمخزون وحذف دفعاتها؟')){const p=d.products.find(p=>p.id===s.productId)||d.products.find(p=>p.n===s.n);if(p)p.q+=Number(s.q)||0;d.sales=d.sales.filter(x=>x.id!==id);d.payments=d.payments.filter(x=>x.saleId!==id);save()}}
+function delSale(id){
+
+  if(!hasPerm('delete')){
+
+    alert('ليس لديك صلاحية للحذف');
+
+    return;
+
+  }
+
+  const s=d.sales.find(x=>x.id===id);
+
+  if(!s)return;
+
+  if(confirm('حذف الفاتورة وإرجاع الكمية للمخزون وحذف دفعاتها؟')){
+
+    if(Array.isArray(s.items)&&s.items.length){
+
+      s.items.forEach(item=>{
+
+        const p=d.products.find(p=>p.id===item.productId);
+
+        if(p)p.q+=Number(item.q)||0;
+
+      });
+
+    }else{
+
+      const p=d.products.find(p=>p.id===s.productId)||
+
+              d.products.find(p=>p.n===s.n);
+
+      if(p)p.q+=Number(s.q)||0;
+
+    }
+
+    d.sales=d.sales.filter(x=>x.id!==id);
+
+    d.payments=d.payments.filter(x=>x.saleId!==id);
+
+    save();
+
+  }
+
+}
 function addPayment(id){if(!(hasPerm('payments')||hasPerm('debts'))){alert('ليس لديك صلاحية لتسجيل الدفعات');return}const s=d.sales.find(x=>x.id===id);if(!s||s.remaining<=0)return;const raw=prompt(`المتبقي على الفاتورة ${s.invoiceNo}: ${money(s.remaining,s.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>s.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';s.paid=Number(s.paid||0)+amount;s.remaining=Math.max(0,s.total-s.paid);if(s.remaining===0)s.dueDate='';d.payments.unshift({id:Date.now(),saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount,cur:s.cur,iso:new Date().toISOString(),note});save();alert(s.remaining===0?'تم تسديد الفاتورة بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
 
 function setPurchaseDate(){if(!$('purchaseDate'))return;if(!$('purchaseDate').value)$('purchaseDate').value=ymd(new Date())}
