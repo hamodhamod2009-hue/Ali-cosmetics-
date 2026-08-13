@@ -1399,7 +1399,111 @@ const id=Date.now(),row={id,name,phone,amount,paid,remaining:Math.max(0,amount-p
  if(paid>0)d.supplierPayments.unshift({id:id+1,debtId:id,name,amount:paid,cur,iso:new Date(date+'T12:00:00').toISOString(),note:'دفعة عند إضافة الحساب'});
  ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote'].forEach(x=>$(x).value='');$('supplierPaid').value=0;$('supplierMsg').textContent='تمت إضافة حساب التاجر';setSupplierDate();save()
 }
-function addSupplierPayment(id){if(!hasPerm('suppliers')){alert('ليس لديك صلاحية لتسديد حسابات التجار');return}const x=d.supplierDebts.find(v=>v.id===id);if(!x||x.remaining<=0)return;const raw=prompt(`المتبقي للتاجر ${x.name}: ${money(x.remaining,x.cur)}\nأدخل مبلغ الدفعة:`);if(raw===null)return;const amount=Number(raw);if(!Number.isFinite(amount)||amount<=0||amount>x.remaining){alert('مبلغ الدفعة غير صحيح');return}const note=prompt('ملاحظة للدفعة (اختياري):')||'';x.paid=Number(x.paid||0)+amount;x.remaining=Math.max(0,x.amount-x.paid);if(x.remaining===0)x.due='';const purchase=x.purchaseId?d.purchases.find(p=>p.id===x.purchaseId):null;if(purchase){purchase.paid=Number(purchase.paid||0)+amount;purchase.remaining=Math.max(0,Number(purchase.total)-purchase.paid);if(purchase.remaining===0)purchase.due=''}d.supplierPayments.unshift({id:Date.now(),debtId:x.id,purchaseId:x.purchaseId||null,name:x.name,invoiceNo:purchase?.invoiceNo||'',amount,cur:x.cur,iso:new Date().toISOString(),note});save();alert(x.remaining===0?'تم تسديد حساب التاجر بالكامل':'تم تسجيل الدفعة وتحديث المتبقي')}
+function addSupplierPayment(id){
+
+  if(!hasPerm('suppliers')){
+
+    alert('ليس لديك صلاحية لتسديد حسابات التجار');
+
+    return;
+
+  }
+
+  const x=d.supplierDebts.find(v=>v.id===id);
+
+  if(!x || Number(x.remaining)<=0)return;
+
+  const oldRemaining=Number(x.remaining||0);
+
+  const raw=prompt(
+
+    `المتبقي للتاجر ${x.name}: ${money(oldRemaining,x.cur)}\nأدخل مبلغ الدفعة:`
+
+  );
+
+  if(raw===null)return;
+
+  const amount=Number(raw);
+
+  if(!Number.isFinite(amount) || amount<=0){
+
+    alert('مبلغ الدفعة غير صحيح');
+
+    return;
+
+  }
+
+  const note=prompt('ملاحظة للدفعة (اختياري):')||'';
+
+  x.paid=Number(x.paid||0)+amount;
+
+  x.remaining=Math.max(0,Number(x.amount||0)-x.paid);
+
+  x.credit=Math.max(0,x.paid-Number(x.amount||0));
+
+  if(x.remaining===0)x.due='';
+
+  const purchase=x.purchaseId
+
+    ? d.purchases.find(p=>p.id===x.purchaseId)
+
+    : null;
+
+  if(purchase){
+
+    purchase.paid=Number(purchase.paid||0)+amount;
+
+    purchase.remaining=Math.max(0,Number(purchase.total||0)-purchase.paid);
+
+    purchase.credit=Math.max(0,purchase.paid-Number(purchase.total||0));
+
+    if(purchase.remaining===0)purchase.due='';
+
+  }
+
+  d.supplierPayments.unshift({
+
+    id:Date.now(),
+
+    debtId:x.id,
+
+    purchaseId:x.purchaseId||null,
+
+    name:x.name,
+
+    invoiceNo:purchase?purchase.invoiceNo||'':'',
+
+    amount,
+
+    cur:x.cur,
+
+    iso:new Date().toISOString(),
+
+    note
+
+  });
+
+  save();
+
+  const extra=Math.max(0,amount-oldRemaining);
+
+  if(extra>0){
+
+    alert(`تم تسديد حساب التاجر بالكامل وتسجيل ${money(extra,x.cur)} رصيد إلنا عند التاجر`);
+
+  }else{
+
+    alert(x.remaining===0
+
+      ? 'تم تسديد حساب التاجر بالكامل'
+
+      : 'تم تسجيل الدفعة وتحديث المتبقي'
+
+    );
+
+  }
+
+}
 function payPurchase(id){
 
   if(!(hasPerm('purchases')||hasPerm('suppliers'))){
