@@ -891,7 +891,15 @@ const availableCredit=d.purchases
 
 )
 
-.reduce((s,p)=>s+Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0),0);
+.reduce((s,p)=>s+(
+
+  p.credit===undefined || p.credit===null
+
+    ? Math.max(Number(p.paid||0)-Number(p.total||0),0)
+
+    : Math.max(Number(p.credit||0),0)
+
+),0);
 
 const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
 
@@ -973,21 +981,29 @@ const oldCredits=d.purchases.filter(p=>
 
   String(p.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase() &&
 
-  Math.max(Number(p.credit||0),Number(p.paid||0)-Number(p.total||0),0)>0
+  (
+
+    p.credit===undefined || p.credit===null
+
+      ? Math.max(Number(p.paid||0)-Number(p.total||0),0)
+
+      : Math.max(Number(p.credit||0),0)
+
+  )>0
 
 );
 
 oldCredits.forEach(p=>{
 
-  p.credit=Math.max(
+  if(p.credit===undefined || p.credit===null){
 
-    Number(p.credit||0),
+    p.credit=Math.max(Number(p.paid||0)-Number(p.total||0),0);
 
-    Number(p.paid||0)-Number(p.total||0),
+  }else{
 
-    0
+    p.credit=Math.max(Number(p.credit||0),0);
 
-  );
+  }
 
 });
 
@@ -998,7 +1014,6 @@ const availableCredit=oldCredits.reduce(
   0
 
 );
-
 const usedCredit=Math.min(
 
   availableCredit,
