@@ -1278,19 +1278,20 @@ function printSupplierStatement(name){
 
   );
 
-  const creditUsed=debts.reduce((sum,x)=>{
+  const creditCreated=debts.reduce((sum,x)=>
 
-    const cashForDebt=payments
+  sum+Math.max(0,Number(x.paid||0)-Number(x.amount||0)),0
 
-      .filter(p=>p.debtId===x.id)
+);
 
-      .reduce((s,p)=>s+Number(p.amount||0),0);
+const creditRemaining=debts.reduce((sum,x)=>
 
-    return sum+Math.max(0,Number(x.paid||0)-cashForDebt);
+  sum+Math.max(0,Number(x.credit||0)),0
 
-  },0);
+);
 
-  const creditRemaining=Math.max(0,creditCreated-creditUsed);
+const creditUsed=Math.max(0,creditCreated-creditRemaining);
+
 
   const body=`
 
