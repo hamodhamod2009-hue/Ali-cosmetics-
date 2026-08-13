@@ -1278,11 +1278,6 @@ function printSupplierStatement(name){
 
   );
 
-  const creditCreated=debts.reduce((sum,x)=>
-
-  sum+Math.max(0,Number(x.paid||0)-Number(x.amount||0)),0
-
-);
 
 const creditRemaining=debts.reduce((sum,x)=>
 
