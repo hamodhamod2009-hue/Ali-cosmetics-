@@ -1256,7 +1256,141 @@ function renderPurchases(){
 
 }
 function printWindow(title,body){const w=window.open('','_blank');if(!w){alert('اسمح بالنوافذ المنبثقة للطباعة');return}w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:8px;text-align:right}h1{margin-top:0}</style></head><body><h1>${esc(title)}</h1>${body}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
-function printSupplierStatement(name){const debts=d.supplierDebts.filter(x=>(x.name||'').trim().toLowerCase()===name.trim().toLowerCase()),payments=d.supplierPayments.filter(x=>(x.name||'').trim().toLowerCase()===name.trim().toLowerCase());const body=`<p>إجمالي الحساب: <b>${byCurrency(debts,'amount')}</b> — المدفوع: <b>${byCurrency(debts,'paid')}</b> — المتبقي: <b>${byCurrency(debts,'remaining')}</b></p><h2>الحسابات</h2><table><tr><th>التاريخ</th><th>التفاصيل</th><th>الأصلي</th><th>المدفوع</th><th>المتبقي</th></tr>${debts.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.note||'-')}</td><td>${money(x.amount,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>المبلغ</th><th>ملاحظة</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>${money(x.amount,x.cur)}</td><td>${esc(x.note||'-')}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب التاجر - ${name}`,body)}
+function printSupplierStatement(name){
+
+  const key=name.trim().toLowerCase();
+
+  const debts=d.supplierDebts.filter(x=>
+
+    (x.name||'').trim().toLowerCase()===key
+
+  );
+
+  const payments=d.supplierPayments.filter(x=>
+
+    (x.name||'').trim().toLowerCase()===key
+
+  );
+
+  const creditCreated=debts.reduce((sum,x)=>
+
+    sum+Math.max(0,Number(x.paid||0)-Number(x.amount||0)),0
+
+  );
+
+  const creditUsed=debts.reduce((sum,x)=>{
+
+    const cashForDebt=payments
+
+      .filter(p=>p.debtId===x.id)
+
+      .reduce((s,p)=>s+Number(p.amount||0),0);
+
+    return sum+Math.max(0,Number(x.paid||0)-cashForDebt);
+
+  },0);
+
+  const creditRemaining=Math.max(0,creditCreated-creditUsed);
+
+  const body=`
+
+    <p>
+
+      إجمالي الحساب: <b>${byCurrency(debts,'amount')}</b>
+
+      — المدفوع نقداً: <b>${byCurrency(payments,'amount')}</b>
+
+      — الرصيد الذي نشأ: <b>${money(creditCreated,'IQD')}</b>
+
+      — الرصيد المستخدم: <b>${money(creditUsed,'IQD')}</b>
+
+      — الرصيد المتبقي لنا: <b>${money(creditRemaining,'IQD')}</b>
+
+      — المطلوب للتاجر: <b>${byCurrency(debts,'remaining')}</b>
+
+    </p>
+
+    <h2>الحسابات</h2>
+
+    <table>
+
+      <tr>
+
+        <th>التاريخ</th>
+
+        <th>التفاصيل</th>
+
+        <th>الأصلي</th>
+
+        <th>المدفوع</th>
+
+        <th>رصيد مستخدم</th>
+
+        <th>المتبقي</th>
+
+      </tr>
+
+      ${debts.map(x=>{
+
+        const cashForDebt=payments
+
+          .filter(p=>p.debtId===x.id)
+
+          .reduce((s,p)=>s+Number(p.amount||0),0);
+
+        const used=Math.max(0,Number(x.paid||0)-cashForDebt);
+
+        return `<tr>
+
+          <td>${esc(x.date)}</td>
+
+          <td>${esc(x.note||'-')}</td>
+
+          <td>${money(x.amount,x.cur)}</td>
+
+          <td>${money(x.paid,x.cur)}</td>
+
+          <td>${money(used,x.cur)}</td>
+
+          <td>${money(x.remaining,x.cur)}</td>
+
+        </tr>`;
+
+      }).join('')}
+
+    </table>
+
+    <h2>الدفعات النقدية</h2>
+
+    <table>
+
+      <tr>
+
+        <th>التاريخ</th>
+
+        <th>المبلغ</th>
+
+        <th>ملاحظة</th>
+
+      </tr>
+
+      ${payments.map(x=>`<tr>
+
+        <td>${fmtDate(new Date(x.iso))}</td>
+
+        <td>${money(x.amount,x.cur)}</td>
+
+        <td>${esc(x.note||'-')}</td>
+
+      </tr>`).join('')}
+
+    </table>
+
+  `;
+
+  printWindow(`كشف حساب التاجر - ${name}`,body);
+
+}
 function printCustomerStatement(name){const sales=d.sales.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase()),payments=d.payments.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase());const body=`<p>إجمالي المبيعات: <b>${byCurrency(sales,'total')}</b> — المدفوع: <b>${byCurrency(sales,'paid')}</b> — المتبقي: <b>${byCurrency(sales,'remaining')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>المنتج</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th></tr>${sales.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>الفاتورة</th><th>المبلغ</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>#${x.invoiceNo}</td><td>${money(x.amount,x.cur)}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب الزبون - ${name}`,body)}
 function printCurrentReport(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للتقارير');return}const r=reportSales(),body=`<p>${esc($('reportCaption').textContent)}</p><p>المبيعات: <b>${byCurrency(r,'total')}</b> — التكلفة: <b>${byCurrency(r,'cost')}</b> — الربح: <b>${byCurrency(r,'profit')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>الزبون</th><th>المنتج</th><th>المبيعات</th><th>الربح</th></tr>${r.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc(x.customerName)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.profit,x.cur)}</td></tr>`).join('')}</table>`;printWindow('تقرير المبيعات والأرباح',body)}
 
