@@ -574,11 +574,37 @@ function renderSaleItems(){
 
   }
 
-  el.innerHTML=saleItems.map((x,i)=>
+el.innerHTML=saleItems.map((x,i)=>
 
-    `<div>${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} = ${money(x.total,d.cur)}</div>`
+`<div>
 
-  ).join('');
+${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} = ${money(x.total,d.cur)}
+
+<button type="button" onclick="decreaseSaleItem(${i})">− إنقاص</button>
+
+</div>`
+
+).join('');
+}
+    function decreaseSaleItem(i){
+
+  const x=saleItems[i];
+
+  if(!x)return;
+
+  x.q=Number(x.q||0)-1;
+
+  if(x.q<=0){
+
+    saleItems.splice(i,1);
+
+  }else{
+
+    x.total=x.q*Number(x.unitSell||0);
+
+  }
+
+  renderSaleItems();
 
 }
 function sale(){
