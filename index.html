@@ -1646,7 +1646,135 @@ function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRe
 function exportData(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للنسخ الاحتياطي والتقارير');return}const blob=new Blob([JSON.stringify({app:'Store Management System',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`store-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
 function restoreLatestSnapshot(){if(currentRole!=='admin'){alert('استرجاع الحفظ التلقائي متاح للمدير فقط');return}try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');if(!bk.length){alert('لا توجد نسخة تلقائية محفوظة بعد');return}const latest=bk[0];if(!latest||!latest.data){alert('الحفظ التلقائي غير صالح');return}if(confirm(`استرجاع آخر حفظ تلقائي من ${fmtDate(new Date(latest.at))}؟`)){localStorage.setItem(KEY,JSON.stringify(latest.data));d=load();render();alert('تم استرجاع آخر حفظ تلقائي')}}catch{alert('تعذر استرجاع الحفظ التلقائي')}}
 function importData(e){if(currentRole!=='admin'){alert('استرجاع النسخة الاحتياطية متاح للمدير فقط');e.target.value='';return}const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),z=x.data||x;if(!Array.isArray(z.products)||!Array.isArray(z.sales))throw 0;if(confirm('استبدال البيانات الحالية؟')){localStorage.setItem(KEY,JSON.stringify(z));d=load();render();alert('تم الاسترجاع')}}catch{alert('الملف غير صالح')}e.target.value=''};r.readAsText(f)}
-function renderSales(){const q=($('salesSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q)||(s.n||'').toLowerCase().includes(q)||(s.brand||'').toLowerCase().includes(q)||(s.code||'').toLowerCase().includes(q)||(s.barcode||'').toLowerCase().includes(q));$('sb').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td><b>${esc(s.customerName)}</b><br><span class="muted">${esc(s.customerPhone)}</span></td><td>${esc((s.brand?s.brand+' - ':'')+s.n)}</td><td>${num(s.q)}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td>${money(s.remaining,s.cur)}</td><td>${statusBadge(s)}</td><td><div class="row-actions">${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}</div></td></tr>`).join('')||'<tr><td colspan="10">لا توجد فواتير</td></tr>'}
+function renderSales(){
+
+  const q=($('salesSearch')?.value||'').trim().toLowerCase(),
+
+  rows=d.sales.filter(s=>
+
+    !q||
+
+    String(s.invoiceNo).includes(q)||
+
+    (s.customerName||'').toLowerCase().includes(q)||
+
+    (s.n||'').toLowerCase().includes(q)||
+
+    (s.brand||'').toLowerCase().includes(q)||
+
+    (s.code||'').toLowerCase().includes(q)||
+
+    (s.barcode||'').toLowerCase().includes(q)
+
+  );
+
+  $('sb').innerHTML=rows.map(s=>`
+
+    <tr>
+
+      <td>#${s.invoiceNo}</td>
+
+      <td>${esc(s.t||fmtDate(new Date(s.iso)))}</td>
+
+      <td>
+
+        <b>${esc(s.customerName)}</b><br>
+
+        <span class="muted">${esc(s.customerPhone)}</span>
+
+      </td>
+
+      <td>${esc((s.brand?s.brand+' - ':'')+s.n)}</td>
+
+      <td>${num(s.q)}</td>
+
+      <td>${money(s.total,s.cur)}</td>
+
+      <td>${money(s.paid,s.cur)}</td>
+
+      <td>${money(s.remaining,s.cur)}</td>
+
+      <td>${statusBadge(s)}</td>
+
+      <td>
+
+        <div class="row-actions">
+
+          <button class="blue" onclick="viewSaleDetails(${s.id})">تفاصيل الفاتورة</button>
+
+          ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
+
+          <button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>
+
+          ${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}
+
+        </div>
+
+      </td>
+
+    </tr>
+
+  `).join('')||'<tr><td colspan="10">لا توجد فواتير</td></tr>';
+
+}
+
+function viewSaleDetails(id){
+
+  const s=d.sales.find(x=>x.id===id);
+
+  if(!s)return;
+
+  const items=Array.isArray(s.items)&&s.items.length
+
+    ? s.items
+
+    : [{
+
+        brand:s.brand||'',
+
+        n:s.n||'',
+
+        q:Number(s.q)||0,
+
+        unitSell:Number(s.unitSell)||0,
+
+        total:Number(s.total)||0
+
+      }];
+
+  const details=items.map((x,i)=>
+
+    `${i+1}. ${x.brand?x.brand+' - ':''}${x.n||'-'}\n`+
+
+    `العدد: ${Number(x.q)||0}\n`+
+
+    `السعر: ${money(Number(x.unitSell)||0,s.cur)}\n`+
+
+    `المجموع: ${money(Number(x.total)||0,s.cur)}`
+
+  ).join('\n\n');
+
+  alert(
+
+    `الفاتورة #${s.invoiceNo}\n`+
+
+    `الزبون: ${s.customerName||'-'}\n`+
+
+    `الهاتف: ${s.customerPhone||'-'}\n`+
+
+    `التاريخ: ${s.t||fmtDate(new Date(s.iso))}\n\n`+
+
+    `الآيتمات:\n${details}\n\n`+
+
+    `إجمالي الفاتورة: ${money(s.total,s.cur)}\n`+
+
+    `المدفوع: ${money(s.paid,s.cur)}\n`+
+
+    `المتبقي: ${money(s.remaining,s.cur)}`
+
+  );
+
+}
 function renderDebts(){const q=($('debtSearch')?.value||'').trim().toLowerCase(),rows=d.sales.filter(s=>Number(s.remaining)>0).filter(s=>!q||String(s.invoiceNo).includes(q)||(s.customerName||'').toLowerCase().includes(q)||(s.customerPhone||'').toLowerCase().includes(q)),today=ymd(new Date());$('debtCount').textContent=rows.length;$('debtTotal').textContent=byCurrency(rows,'remaining');const names=new Set(rows.map(s=>(s.customerName||'').trim().toLowerCase()));$('debtCustomers').textContent=names.size;const overdue=rows.filter(s=>s.dueDate&&s.dueDate<today);$('overdueTotal').textContent=byCurrency(overdue,'remaining');$('debtBody').innerHTML=rows.map(s=>`<tr><td>#${s.invoiceNo}</td><td><b>${esc(s.customerName)}</b></td><td><span class="badge ${s.customerType==='wholesale'?'partial':'paid'}">${s.customerType==='wholesale'?'زبون تاجر':'زبون محل'}</span></td><td>${esc(s.customerPhone||'-')}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.dueDate||'-')}${s.dueDate&&s.dueDate<today?' <span class="badge unpaid">متأخر</span>':''}</td><td>${money(s.total,s.cur)}</td><td>${money(s.paid,s.cur)}</td><td><b>${money(s.remaining,s.cur)}</b></td><td>${statusBadge(s)}</td><td><button class="good" onclick="addPayment(${s.id})">تسجيل دفعة</button></td></tr>`).join('')||'<tr><td colspan="11">لا توجد ديون حالياً</td></tr>';
  const agg={};rows.forEach(s=>{const k=(s.customerName||'').trim().toLowerCase()+'|'+(s.customerPhone||'');if(!agg[k])agg[k]={name:s.customerName,phone:s.customerPhone,count:0,vals:{}};agg[k].count++;agg[k].vals[s.cur]=(agg[k].vals[s.cur]||0)+Number(s.remaining||0)});$('customerDebtBody').innerHTML=Object.values(agg).map(a=>`<tr><td><b>${esc(a.name)}</b></td><td>${esc(a.phone||'-')}</td><td>${a.count}</td><td>${Object.entries(a.vals).map(([c,v])=>money(v,c)).join(' | ')}</td></tr>`).join('')||'<tr><td colspan="4">لا توجد ديون</td></tr>'}
 function renderPayments(){const q=($('paymentSearch')?.value||'').trim().toLowerCase(),rows=d.payments.filter(p=>!q||String(p.invoiceNo).includes(q)||(p.customerName||'').toLowerCase().includes(q));$('paymentCount').textContent=rows.length;$('paymentTotal').textContent=byCurrency(rows,'amount');$('paidInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='paid').length;$('partialInvoiceCount').textContent=d.sales.filter(s=>statusOf(s)==='partial').length;$('paymentBody').innerHTML=rows.map(p=>`<tr><td>${esc(fmtDate(new Date(p.iso)))}</td><td>#${p.invoiceNo}</td><td><b>${esc(p.customerName)}</b></td><td>${num(p.amount)}</td><td>${esc(p.cur)}</td><td>${esc(p.note||'-')}</td></tr>`).join('')||'<tr><td colspan="6">لا توجد مدفوعات</td></tr>'}
