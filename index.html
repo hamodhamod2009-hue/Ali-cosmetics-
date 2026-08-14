@@ -1742,17 +1742,21 @@ function viewSaleDetails(id){
 
       }];
 
-  const details=items.map((x,i)=>
+const details=items.map((x,i)=>
 
-    `${i+1}. ${x.brand?x.brand+' - ':''}${x.n||'-'}\n`+
+`${i+1}.\n`+
 
-    `العدد: ${Number(x.q)||0}\n`+
+`البراند: ${x.brand||'-'}\n`+
 
-    `السعر: ${money(Number(x.unitSell)||0,s.cur)}\n`+
+`الآيتم: ${x.n||'-'}\n`+
 
-    `المجموع: ${money(Number(x.total)||0,s.cur)}`
+`العدد: ${Number(x.q)||0}\n`+
 
-  ).join('\n\n');
+`السعر: ${money(Number(x.unitSell)||0,s.cur)}\n`+
+
+`المجموع: ${money(Number(x.total)||0,s.cur)}`
+
+).join('\n\n');
 
   alert(
 
