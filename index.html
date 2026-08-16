@@ -1433,12 +1433,193 @@ function printCurrentReport(){if(!hasPerm('reports')){alert('ليس لديك ص�
 
 function setSupplierDate(){if(!$('supplierDate'))return;const today=ymd(new Date());if(!$('supplierDate').value)$('supplierDate').value=today}
 function addSupplierDebt(){
- if(!hasPerm('suppliers')){alert('ليس لديك صلاحية لحسابات التجار');return}
- const name=$('supplierName').value.trim(),phone=$('supplierPhone').value.trim(),amount=Number($('supplierAmount').value),paid=Number($('supplierPaid').value||0),cur=$('supplierCur').value,date=$('supplierDate').value||ymd(new Date()),due=$('supplierDue').value,note=$('supplierNote').value.trim();
-if(!name||!Number.isFinite(amount)||amount<=0||!Number.isFinite(paid)||paid<0){alert('تحقق من البيانات');return}
-const id=Date.now(),row={id,name,phone,amount,paid,remaining:Math.max(0,amount-paid),credit:Math.max(0,paid-amount),cur,date,due,note};d.supplierDebts.unshift(row);
- if(paid>0)d.supplierPayments.unshift({id:id+1,debtId:id,name,amount:paid,cur,iso:new Date(date+'T12:00:00').toISOString(),note:'دفعة عند إضافة الحساب'});
- ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote'].forEach(x=>$(x).value='');$('supplierPaid').value=0;$('supplierMsg').textContent='تمت إضافة حساب التاجر';setSupplierDate();save()
+
+  if(!hasPerm('suppliers')){
+
+    alert('ليس لديك صلاحية لحسابات التجار');
+
+    return;
+
+  }
+
+  const name=$('supplierName').value.trim(),
+
+        phone=$('supplierPhone').value.trim(),
+
+        amount=Number($('supplierAmount').value),
+
+        cashPaid=Number($('supplierPaid').value||0),
+
+        cur=$('supplierCur').value,
+
+        date=$('supplierDate').value||ymd(new Date()),
+
+        due=$('supplierDue').value,
+
+        note=$('supplierNote').value.trim();
+
+  if(!name || !Number.isFinite(amount) || amount<=0 ||
+
+     !Number.isFinite(cashPaid) || cashPaid<0){
+
+    alert('تحقق من البيانات');
+
+    return;
+
+  }
+
+  const key=name.trim().toLowerCase();
+
+  const oldCredits=d.supplierDebts.filter(x=>
+
+    (x.name||'').trim().toLowerCase()===key &&
+
+    String(x.cur||'IQD').toUpperCase()===String(cur||'IQD').toUpperCase() &&
+
+    (
+
+      x.credit===undefined || x.credit===null
+
+        ? Math.max(Number(x.paid||0)-Number(x.amount||0),0)
+
+        : Math.max(Number(x.credit||0),0)
+
+    )>0
+
+  );
+
+  oldCredits.forEach(x=>{
+
+    if(x.credit===undefined || x.credit===null){
+
+      x.credit=Math.max(Number(x.paid||0)-Number(x.amount||0),0);
+
+    }else{
+
+      x.credit=Math.max(Number(x.credit||0),0);
+
+    }
+
+  });
+
+  const availableCredit=oldCredits.reduce(
+
+    (sum,x)=>sum+Number(x.credit||0),0
+
+  );
+
+  const usedCredit=Math.min(
+
+    availableCredit,
+
+    Math.max(amount-cashPaid,0)
+
+  );
+
+  let creditLeft=usedCredit;
+
+  oldCredits.forEach(x=>{
+
+    if(creditLeft<=0)return;
+
+    const use=Math.min(Number(x.credit||0),creditLeft);
+
+    x.credit=Math.max(0,Number(x.credit||0)-use);
+
+    if(x.purchaseId){
+
+      const p=d.purchases.find(p=>p.id===x.purchaseId);
+
+      if(p){
+
+        p.credit=Math.max(0,Number(p.credit||0)-use);
+
+      }
+
+    }
+
+    creditLeft-=use;
+
+  });
+
+  const paid=cashPaid+usedCredit;
+
+  const remaining=Math.max(0,amount-paid);
+
+  const credit=Math.max(0,cashPaid-amount);
+
+  const id=Date.now();
+
+  const row={
+
+    id,
+
+    name,
+
+    phone,
+
+    amount,
+
+    paid,
+
+    remaining,
+
+    credit,
+
+    cur,
+
+    date,
+
+    due,
+
+    note
+
+  };
+
+  d.supplierDebts.unshift(row);
+
+  if(cashPaid>0){
+
+    d.supplierPayments.unshift({
+
+      id:id+1,
+
+      debtId:id,
+
+      name,
+
+      amount:cashPaid,
+
+      cur,
+
+      iso:new Date(date+'T12:00:00').toISOString(),
+
+      note:'دفعت عند إضافة الحساب'
+
+    });
+
+  }
+
+  ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote']
+
+    .forEach(x=>$(x).value='');
+
+  $('supplierPaid').value=0;
+
+  $('supplierMsg').textContent=
+
+    usedCredit>0
+
+      ? `تم إضافة حساب التاجر واستخدام ${money(usedCredit,cur)} من الرصيد السابق`
+
+      : 'تم إضافة حساب التاجر';
+
+  setSupplierDate();
+
+  save();
+
+  render();
+
 }
 function addSupplierPayment(id){
 
