@@ -1379,7 +1379,7 @@ const creditUsed=Math.max(0,creditCreated-creditRemaining);
 
           .reduce((s,p)=>s+Number(p.amount||0),0);
 
-        const used=Math.max(0,Number(x.paid||0)-cashForDebt);
+const used=Math.max(0,Number(x.usedCredit||0));
 
         return `<tr>
 
