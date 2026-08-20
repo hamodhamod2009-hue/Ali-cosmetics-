@@ -601,7 +601,7 @@ ${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} = ${money(x.tot
 
   }else{
 
-    x.total=x.q*Number(x.unitSell||0);
+x.total=x.q*Number(x.unit||x.unitSell||0);
 
   }
 
