@@ -503,12 +503,13 @@ function previewSale(){
 
 }
   let saleItems=[];
+    let editingSaleId=null;
 
 function addSaleItem(){
 
   const v=currentSaleValues();
-
-  if(!v.p||v.q<1||v.q>Number(v.p.q)){
+const editOldQty=v.p&&editingSaleId!==null?((d.sales.find(s=>s.id===editingSaleId)?.items||[]).filter(i=>i.productId===v.p.id).reduce((a,i)=>a+Number(i.q||0),0)):0;
+if(!v.p||v.q<1||v.q>Number(v.p.q)+editOldQty){
 
     alert('تحقق من المنتج والكمية');
 
@@ -520,7 +521,7 @@ function addSaleItem(){
 
   if(existing){
 
-    if(existing.q+v.q>Number(v.p.q)){
+if(existing.q+v.q>Number(v.p.q)+editOldQty){
 
       alert('الكمية أكبر من المتوفر');
 
@@ -668,11 +669,12 @@ function sale(){
     return;
 
   }
+  const oldSale=editingSaleId!==null?d.sales.find(x=>x.id===editingSaleId):null;
  for(const x of saleItems){
 
     const p=d.products.find(p=>p.id===x.productId);
-
-    if(!p||Number(x.q)>Number(p.q)){
+const oldQty=oldSale&&Array.isArray(oldSale.items)?oldSale.items.filter(i=>i.productId===x.productId).reduce((a,i)=>a+Number(i.q||0),0):0;
+if(!p||Number(x.q)>Number(p.q)+oldQty){
 
       $('sm').textContent='إحدى الكميات أكبر من المخزون المتوفر';
 
@@ -698,10 +700,21 @@ function sale(){
 
   }
 
-  const id=Date.now();
 
-  const invoiceNo=d.nextInvoice++;
+if(oldSale&&Array.isArray(oldSale.items)){
 
+  oldSale.items.forEach(item=>{
+
+    const p=d.products.find(p=>p.id===item.productId);
+
+    if(p)p.q+=Number(item.q)||0;
+
+  });
+
+}
+const id=oldSale?oldSale.id:Date.now();
+
+const invoiceNo=oldSale?oldSale.invoiceNo:d.nextInvoice++;
   const items=saleItems.map(x=>{
 
     const p=d.products.find(p=>p.id===x.productId);
@@ -796,8 +809,18 @@ function sale(){
 
   };
 
+if(oldSale){
+
+  const saleIndex=d.sales.findIndex(x=>x.id===oldSale.id);
+
+  if(saleIndex>=0)d.sales[saleIndex]=s;
+
+}else{
+
   d.sales.unshift(s);
 
+}
+if(oldSale)d.payments=d.payments.filter(x=>x.saleId!==oldSale.id);
   if(paidRaw>0){
 
     d.payments.unshift({
@@ -832,7 +855,7 @@ function sale(){
   $('dueDate').value='';
 
   saleItems=[];
-
+editingSaleId=null;
   renderSaleItems();
 
   setSaleDate();
@@ -840,6 +863,66 @@ function sale(){
   save();
 
 }
+    function editSale(id){
+
+  if(!hasPerm('edit')){
+
+    alert('ليس لديك صلاحية لتعديل الفاتورة');
+
+    return;
+
+  }
+
+  const s=d.sales.find(x=>x.id===id);
+
+  if(!s)return;
+
+  editingSaleId=s.id;
+
+  $('customerName').value=s.customerName||'';
+
+  $('customerPhone').value=s.customerPhone||'';
+
+  $('customerType').value=s.customerType||'retail';
+
+  $('paidNow').value=Number(s.paid)||0;
+
+  $('dueDate').value=s.dueDate||'';
+
+  $('saleNote').value=s.note||'';
+
+  if(s.iso){
+
+    const dt=new Date(s.iso);
+
+    const local=new Date(dt.getTime()-dt.getTimezoneOffset()*60000);
+
+    $('saleDate').value=local.toISOString().slice(0,16);
+
+  }
+
+  saleItems=Array.isArray(s.items)&&s.items.length
+
+    ? s.items.map(item=>({
+
+        productId:item.productId,
+
+        q:Number(item.q)||0,
+
+        unit:Number(item.unitSell)||0,
+
+        total:Number(item.total)||0
+
+      }))
+
+    : [];
+
+  renderSaleItems();
+
+  $('sm').textContent=`جاري تعديل الفاتورة رقم ${s.invoiceNo}`;
+
+  $('customerName').scrollIntoView({behavior:'smooth',block:'center'});
+    }
 function delSale(id){
 
   if(!hasPerm('delete')){
@@ -1912,7 +1995,7 @@ function renderSales(){
         <div class="row-actions">
 
           <button class="blue" onclick="viewSaleDetails(${s.id})">تفاصيل الفاتورة</button>
-
+${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">تعديل الفاتورة</button>`:''}
           ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
 
           <button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>
