@@ -1996,10 +1996,9 @@ function renderSales(){
 
           <button class="blue" onclick="viewSaleDetails(${s.id})">تفاصيل الفاتورة</button>
 ${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">تعديل الفاتورة</button>`:''}
-          ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
+          ${currentRole=='admin'&&s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
 
-          <button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>
-
+${currentRole=='admin'?`<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>`:''}
           ${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}
 
         </div>
