@@ -2105,7 +2105,7 @@ function applyRole(){
 
     tab('sales');
 
-    document.querySelectorAll('.nav button').forEach(b=>{
+document.querySelectorAll('nav button, .nav button').forEach(b=>{
 
       const oc=b.getAttribute('onclick')||'';
 
@@ -2117,7 +2117,7 @@ function applyRole(){
 
   }else{
 
-    document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('hidden-role'));
+document.querySelectorAll('nav button, .nav button').forEach(b=>b.classList.remove('hidden-role'));
 
   }
 
