@@ -51,7 +51,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <button onclick="tab('debts',this)">قائمة الديون</button>
 <button onclick="tab('payments',this)">المدفوعات</button>
 <button onclick="tab('suppliers',this)">حسابات التجار</button>
-<button onclick="tab('reports',this)">التقارير والأرباح</button>
+<button class="admin-only" onclick="tab('expenses',this)">المصاريف</button><button onclick="tab('reports',this)">التقارير والأرباح</button>
 <button class="admin-only" onclick="tab('users',this)">المستخدمون والصلاحيات</button>
 <button onclick="location.reload()">خروج</button>
 </div>
@@ -314,7 +314,109 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <thead><tr><th>تاريخ الدفع</th><th>الفاتورة</th><th>الزبون</th><th>المبلغ</th><th>العملة</th><th>ملاحظة</th></tr></thead><tbody id="paymentBody"></tbody>
 </table></div></div>
 </section>
+<section id="expenses" class="hidden admin-only">
 
+  <div class="card">
+
+    <h2>المصاريف</h2>
+
+    <div class="grid">
+
+      <div>
+
+        <label>اسم المصروف <span class="req">*</span></label>
+
+        <input id="expenseName" placeholder="مثال: إيجار، كهرباء، نقل">
+
+      </div>
+
+      <div>
+
+        <label>المبلغ <span class="req">*</span></label>
+
+        <input id="expenseAmount" type="number" min="0" step="0.01" value="0">
+
+      </div>
+
+      <div>
+
+        <label>التاريخ</label>
+
+        <input id="expenseDate" type="date">
+
+      </div>
+
+      <div>
+
+        <label>ملاحظة</label>
+
+        <input id="expenseNote" placeholder="ملاحظة اختيارية">
+
+      </div>
+
+    </div>
+
+    <button class="good" onclick="addExpense()">إضافة المصروف</button>
+
+    <p id="expenseMsg" class="muted"></p>
+
+  </div>
+
+  <div class="stats">
+
+    <div class="card">
+
+      <div class="muted">إجمالي المصاريف</div>
+
+      <div id="expenseTotal" class="stat dangerText">0</div>
+
+    </div>
+
+    <div class="card">
+
+      <div class="muted">عدد المصاريف</div>
+
+      <div id="expenseCount" class="stat">0</div>
+
+    </div>
+
+  </div>
+
+  <div class="card">
+
+    <h2>سجل المصاريف</h2>
+
+    <div class="wrap">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>التاريخ</th>
+
+            <th>المصروف</th>
+
+            <th>المبلغ</th>
+
+            <th>الملاحظة</th>
+
+            <th>إجراء</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="expensesBody"></tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
 
 <section id="suppliers" class="hidden">
 <div class="card"><h2>إضافة حساب تاجر</h2><p class="muted">هذا القسم مستقل عن الزبائن والمبيعات، ويسجل المبالغ التي يطلبها التجار من المحل.</p><div class="grid">
