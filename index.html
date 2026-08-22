@@ -569,6 +569,89 @@ x.purchases=Array.isArray(x.purchases)?x.purchases:[];x.expenses=Array.isArray(x
 }catch{return {products:[],sales:[],payments:[],supplierDebts:[],supplierPayments:[],purchases:[],expenses:[],users:[{id:2,username:'employee',password:'1234',displayName:'موظف',perms:['sales','debts','payments']}],nextInvoice:1001}}
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(d));try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');bk.unshift({at:new Date().toISOString(),data:d});localStorage.setItem(KEY+'_snapshots',JSON.stringify(bk.slice(0,10)))}catch{}render()}
+    function addExpense(){
+
+  const name=$('expenseName').value.trim();
+
+  const amount=Number($('expenseAmount').value);
+
+  const date=$('expenseDate').value||new Date().toISOString().slice(0,10);
+
+  const note=$('expenseNote').value.trim();
+
+  if(!name||!Number.isFinite(amount)||amount<=0){
+
+    $('expenseMsg').textContent='اكتب اسم المصروف والمبلغ بشكل صحيح';
+
+    return;
+
+  }
+
+  d.expenses.push({
+
+    id:Date.now(),
+
+    name,
+
+    amount,
+
+    date,
+
+    note
+
+  });
+
+  save();
+
+  $('expenseName').value='';
+
+  $('expenseAmount').value='';
+
+  $('expenseNote').value='';
+
+  $('expenseMsg').textContent='تمت إضافة المصروف';
+
+  renderExpenses();
+
+}
+
+function renderExpenses(){
+
+  const rows=Array.isArray(d.expenses)?d.expenses:[];
+
+  $('expenseBody').innerHTML=rows
+
+    .slice()
+
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)))
+
+    .map(x=>`<tr>
+
+      <td>${x.date||''}</td>
+
+      <td>${x.name||''}</td>
+
+      <td>${Number(x.amount||0).toLocaleString()} IQD</td>
+
+      <td>${x.note||''}</td>
+
+      <td><button class="danger" onclick="deleteExpense(${x.id})">حذف</button></td>
+
+    </tr>`).join('');
+
+}
+
+function deleteExpense(id){
+
+  if(!confirm('حذف هذا المصروف؟'))return;
+
+  d.expenses=d.expenses.filter(x=>x.id!==id);
+
+  save();
+
+  renderExpenses();
+
+}
 let currentRole='admin',currentUser=null,currentLang=localStorage.getItem('ali_lang')||'ar';
 const ALL_PERMS=['products','purchases','sales','debts','payments','suppliers','reports','editPrices','delete','manageUsers'];
 function hasPerm(p){return currentRole==='admin'||(currentUser&&Array.isArray(currentUser.perms)&&currentUser.perms.includes(p))}
