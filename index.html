@@ -18,7 +18,15 @@ button{background:var(--dark);color:#fff;border:0;font-weight:bold;margin-top:10
 th{background:#fafafa;position:sticky;top:0}.wrap{overflow:auto;max-height:65vh}.muted{color:var(--muted);font-size:13px}.stat{font-size:23px;font-weight:bold;margin-top:4px}.goodText{color:var(--good)}.dangerText{color:var(--danger)}
 .note{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:11px}.row-actions{display:flex;gap:6px;flex-wrap:wrap}.row-actions button{padding:7px 10px;margin:0;width:auto;font-size:13px}
 .badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:bold}.paid{background:#d1fae5;color:#065f46}.partial{background:#fef3c7;color:#92400e}.unpaid{background:#fee2e2;color:#991b1b}
-.req{color:var(--danger)}.top-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top-tools button{width:auto;margin:0;padding:8px 12px;background:#fff;color:#111}.low-stock{background:#fff7ed;color:#9a3412}.admin-only.hidden-role{display:none!important}.hidden-role{display:none!important}#login{max-width:420px;margin:10vh auto}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.req{color:var(--danger)}.top-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.top-tools button{width:auto;margin:0;padding:8px 12px;background:#fff;color:#111}.low-stock{background:#fff7ed;color:#9a3412}.admin-only.hidden-role{display:none!important}.hidden-role{display:none!important}#login{max-width:420px;margin:10vh auto}.section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}body.employee-mode .nav button{display:none!important}
+
+body.employee-mode .nav button[onclick*="tab('sales'"]{display:block!important}
+
+body.employee-mode .nav button[onclick*="location.reload"]{display:block!important}
+
+body.employee-mode .row-actions button{display:none!important}
+
+body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inline-block!important}
 @media(min-width:700px){.grid{grid-template-columns:repeat(4,minmax(0,1fr))}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
 </style>
 </head>
@@ -2102,7 +2110,7 @@ function applyLang(){document.documentElement.lang=currentLang;document.document
 function applyRole(){
 
   const isEmployee = currentRole === 'employee';
-
+document.body.classList.toggle('employee-mode', isEmployee);
   if(isEmployee){
 
     tab('sales');
