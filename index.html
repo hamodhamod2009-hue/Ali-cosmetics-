@@ -656,7 +656,67 @@ let currentRole='admin',currentUser=null,currentLang=localStorage.getItem('ali_l
 const ALL_PERMS=['products','purchases','sales','debts','payments','suppliers','reports','editPrices','delete','manageUsers'];
 function hasPerm(p){return currentRole==='admin'||(currentUser&&Array.isArray(currentUser.perms)&&currentUser.perms.includes(p))}
 function doLogin(){const user=$('u').value.trim(),pass=$('pw').value;let ok=false;if(user==='admin'&&pass==='admin123'){currentRole='admin';currentUser={username:'admin',displayName:'المدير',perms:ALL_PERMS};ok=true}else{const found=(d.users||[]).find(x=>x.username===user&&x.password===pass);if(found){currentRole='employee';currentUser=found;ok=true}}if(ok){$('login').classList.add('hidden');$('app').classList.remove('hidden');$('err').textContent='';setSaleDate();setReportRange();render();applyRole();applyLang()}else $('err').textContent=t('بيانات الدخول غير صحيحة')}
-function tab(id,b){if(id!=='home'&&id!=='users'&&!hasPerm(id)){alert('ليس لديك صلاحية للدخول إلى هذا القسم');return}if(id==='users'&&currentRole!=='admin'){alert('هذا القسم للمدير فقط');return}['home','products','purchases','sales','debts','payments','suppliers','reports','users'].forEach(x=>$(x).classList.add('hidden'));$(id).classList.remove('hidden');document.querySelectorAll('.nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(id==='reports')renderReports();if(id==='debts')renderDebts();if(id==='payments')renderPayments();if(id==='suppliers'){setSupplierDate();renderSuppliers();renderSupplierReport()}if(id==='purchases'){setPurchaseDate();renderPurchases();togglePurchaseProductMode();previewPurchase()}}
+function tab(id,b){
+
+if(id!=='home'&&id!=='users'&&!hasPerm(id)){
+
+    alert('ليس لديك صلاحية للدخول إلى هذا القسم');
+
+    return;
+
+  }
+
+  if(id==='users'&&currentRole!=='admin'){
+
+    alert('هذا القسم للمدير فقط');
+
+    return;
+
+  }
+
+  ['home','products','purchases','sales','debts','payments','suppliers','reports','expenses','users']
+
+    .forEach(x=>$(x).classList.add('hidden'));
+
+  $(id).classList.remove('hidden');
+
+  document.querySelectorAll('.nav button')
+
+    .forEach(x=>x.classList.remove('active'));
+
+  b.classList.add('active');
+
+  if(id==='reports')renderReports();
+
+  if(id==='expenses')renderExpenses();
+
+  if(id==='debts')renderDebts();
+
+  if(id==='payments')renderPayments();
+
+  if(id==='suppliers'){
+
+    setSupplierDate();
+
+    renderSuppliers();
+
+    renderSupplierReport();
+
+  }
+
+  if(id==='purchases'){
+
+    setPurchaseDate();
+
+    renderPurchases();
+
+    togglePurchaseProductMode();
+
+    previewPurchase();
+
+  }
+
+}
 function addProduct(){
  if(!hasPerm('products')){alert('ليس لديك صلاحية لإضافة المنتجات');return}
  const brand=$('brand').value.trim(),n=$('name').value.trim(),code=$('itemCode').value.trim(),barcode=$('barcode').value.trim(),c=$('cat').value.trim(),b=Number($('buy').value),s=Number($('sell').value),wsRaw=$('wholesaleSell').value,q=Number($('qty').value),minStock=Number($('minStock').value||0),wholesaleSell=wsRaw===''?s:Number(wsRaw);
