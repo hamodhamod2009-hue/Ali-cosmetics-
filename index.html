@@ -476,54 +476,9 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div><label>استرجاع نسخة من ملف</label><input type="file" accept=".json,application/json" onchange="importData(event)"></div>
 <p class="note" style="grid-column:1/-1">الحفظ التلقائي المحلي يحتفظ بآخر 10 تغييرات داخل نفس المتصفح. النسخة التي تنزلها كملف JSON هي النسخة الاحتياطية الآمنة للنقل إلى جهاز آخر.</p>
 </div></div>
-</section>
-<section id="expenses" class="hidden">
 
-  <div class="card">
 
-    <h2>المصاريف</h2>
 
-    <div class="grid">
-
-      <div><label>اسم المصروف</label><input id="expenseName" placeholder="مثال: إيجار، كهرباء، نقل"></div>
-
-      <div><label>المبلغ</label><input id="expenseAmount" type="number" min="0" step="0.01"></div>
-
-      <div><label>التاريخ</label><input id="expenseDate" type="date"></div>
-
-      <div><label>ملاحظات</label><input id="expenseNote"></div>
-
-    </div>
-
-    <button onclick="addExpense()">إضافة المصروف</button>
-
-    <p id="expenseMsg" class="muted"></p>
-
-  </div>
-
-  <div class="card">
-
-    <h2>سجل المصاريف</h2>
-
-    <div class="wrap">
-
-      <table>
-
-        <thead>
-
-          <tr><th>التاريخ</th><th>المصروف</th><th>المبلغ</th><th>ملاحظات</th><th>إجراء</th></tr>
-
-        </thead>
-
-        <tbody id="expenseBody"></tbody>
-
-      </table>
-
-    </div>
-
-  </div>
-
-</section>
 <section id="users" class="hidden admin-only">
 <div class="card"><h2>المستخدمون وصلاحيات العمال</h2><p class="muted">أنشئ حساب لكل عامل وحدد الأقسام التي يقدر يدخل عليها. حساب المدير يبقى بكامل الصلاحيات.</p>
 <div class="grid">
@@ -616,6 +571,36 @@ function save(){localStorage.setItem(KEY,JSON.stringify(d));try{const bk=JSON.pa
 }
 
 function renderExpenses(){
+
+  const rows=Array.isArray(d.expenses)?d.expenses:[];
+
+  const total=rows.reduce((sum,x)=>sum+Number(x.amount||0),0);
+
+  if($('expenseTotal')) $('expenseTotal').textContent=total.toLocaleString()+' IQD';
+
+  if($('expenseCount')) $('expenseCount').textContent=rows.length;
+
+  $('expenseBody').innerHTML=rows
+
+    .slice()
+
+    .sort((a,b)=>String(b.date||'').localeCompare(String(a.date||'')))
+
+    .map(x=>`<tr>
+
+      <td>${x.date||''}</td>
+
+      <td>${x.name||''}</td>
+
+      <td>${Number(x.amount||0).toLocaleString()} IQD</td>
+
+      <td>${x.note||''}</td>
+
+      <td><button class="danger" onclick="deleteExpense(${x.id})">حذف</button></td>
+
+    </tr>`).join('');
+
+}
 
   const rows=Array.isArray(d.expenses)?d.expenses:[];
 
