@@ -2198,7 +2198,79 @@ function statusBadge(s){const st=statusOf(s);return `<span class="badge ${st}">$
 function setReportRange(){const t=$('reportType').value,n=new Date();let f=new Date(n),to=new Date(n);$('fromDate').disabled=$('toDate').disabled=t==='all';if(t==='all'){$('fromDate').value='';$('toDate').value='';renderReports();return}if(t==='daily'){f=to=new Date(n.getFullYear(),n.getMonth(),n.getDate())}if(t==='monthly'){f=new Date(n.getFullYear(),n.getMonth(),1);to=new Date(n.getFullYear(),n.getMonth()+1,0)}if(t==='yearly'){f=new Date(n.getFullYear(),0,1);to=new Date(n.getFullYear(),11,31)}if(t==='custom'){if(!$('fromDate').value)$('fromDate').value=ymd(new Date(n.getFullYear(),n.getMonth(),1));if(!$('toDate').value)$('toDate').value=ymd(n);return}$('fromDate').value=ymd(f);$('toDate').value=ymd(to);renderReports()}
 function reportSales(){if($('reportType').value==='all')return d.sales;if(!$('fromDate').value||!$('toDate').value)return [];const f=new Date($('fromDate').value+'T00:00:00'),to=new Date($('toDate').value+'T23:59:59.999');return d.sales.filter(s=>{const x=new Date(s.iso);return !isNaN(x)&&x>=f&&x<=to})}
 function byCurrency(rows,key){const out={};rows.forEach(s=>out[s.cur||'غير محدد']=(out[s.cur||'غير محدد']||0)+Number(s[key]||0));return Object.entries(out).map(([c,v])=>money(v,c)).join(' | ')||'0'}
-function renderReports(){if(!$('reportBody'))return;const r=reportSales();$('rRevenue').textContent=byCurrency(r,'total');$('rCost').textContent=byCurrency(r,'cost');$('rProfit').textContent=byCurrency(r,'profit');$('rReceived').textContent=byCurrency(r,'paid');$('rRemaining').textContent=byCurrency(r,'remaining');$('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));$('reportCaption').textContent=$('reportType').value==='all'?'جميع عمليات البيع':`من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;$('reportBody').innerHTML=r.map(s=>`<tr><td>#${s.invoiceNo}</td><td>${esc(s.t||fmtDate(new Date(s.iso)))}</td><td>${esc(s.customerName)}</td><td>${s.customerType==='wholesale'?'زبون تاجر':'زبون محل'}</td><td>${esc((s.brand?s.brand+' - ':'')+s.n)}</td><td>${num(s.q)}</td><td>${num(s.total)}</td><td>${num(s.cost)}</td><td>${num(s.profit)}</td><td>${num(s.paid)}</td><td>${num(s.remaining)}</td><td>${esc(s.cur)}</td></tr>`).join('')||'<tr><td colspan="12">لا توجد مبيعات في هذه الفترة</td></tr>'}
+function renderReports(){
+
+  if(!$('reportBody')) return;
+
+  const r=reportSales();
+
+  const from=$('fromDate')?.value||'';
+
+  const to=$('toDate')?.value||'';
+
+  const expenses=(Array.isArray(d.expenses)?d.expenses:[]).filter(x=>{
+
+    const date=String(x.date||'');
+
+    return (!from||date>=from)&&(!to||date<=to);
+
+  });
+
+  const expenseTotal=expenses.reduce((sum,x)=>sum+Number(x.amount||0),0);
+
+  $('rRevenue').textContent=byCurrency(r,'total');
+
+  $('rCost').textContent=byCurrency(r,'cost');
+
+  const salesProfit=r.reduce((sum,s)=>sum+Number(s.profit||0),0);
+
+  const netProfit=salesProfit-expenseTotal;
+
+  $('rProfit').textContent=num(netProfit)+' IQD';
+
+  $('rReceived').textContent=byCurrency(r,'paid');
+
+  $('rRemaining').textContent=byCurrency(r,'remaining');
+
+  $('rQty').textContent=num(r.reduce((a,s)=>a+Number(s.q||0),0));
+
+  $('reportCaption').textContent=
+
+    $('reportType').value==='all'
+
+      ? 'جميع عمليات البيع'
+
+      : `من ${$('fromDate').value||'-'} إلى ${$('toDate').value||'-'}`;
+
+  $('reportBody').innerHTML=r.map(s=>`<tr>
+
+    <td>${esc(s.invoiceNo)}</td>
+
+    <td>${esc(s.t||fmtDate(new Date(s.iso)))}</td>
+
+    <td>${esc(s.customerName)}</td>
+
+    <td>${s.customerType==='wholesale'?'زبون تاجر':'زبون محل'}</td>
+
+    <td>${esc(s.brand)}</td>
+
+    <td>${esc(s.n||'')}</td>
+
+    <td>${num(s.q)}</td>
+
+    <td>${num(s.total)}</td>
+
+    <td>${num(s.profit)}</td>
+
+    <td>${num(s.paid)}</td>
+
+    <td>${num(s.remaining)}</td>
+
+    <td>${esc(s.cur)}</td>
+
+  </tr>`).join('')||'<tr><td colspan="12">لا توجد مبيعات في هذه الفترة</td></tr>';
+
+}
 function exportData(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للنسخ الاحتياطي والتقارير');return}const blob=new Blob([JSON.stringify({app:'Store Management System',exportedAt:new Date().toISOString(),data:d},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`store-backup-${ymd(new Date())}.json`;a.click();URL.revokeObjectURL(a.href)}
 function restoreLatestSnapshot(){if(currentRole!=='admin'){alert('استرجاع الحفظ التلقائي متاح للمدير فقط');return}try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');if(!bk.length){alert('لا توجد نسخة تلقائية محفوظة بعد');return}const latest=bk[0];if(!latest||!latest.data){alert('الحفظ التلقائي غير صالح');return}if(confirm(`استرجاع آخر حفظ تلقائي من ${fmtDate(new Date(latest.at))}؟`)){localStorage.setItem(KEY,JSON.stringify(latest.data));d=load();render();alert('تم استرجاع آخر حفظ تلقائي')}}catch{alert('تعذر استرجاع الحفظ التلقائي')}}
 function importData(e){if(currentRole!=='admin'){alert('استرجاع النسخة الاحتياطية متاح للمدير فقط');e.target.value='';return}const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{try{const x=JSON.parse(r.result),z=x.data||x;if(!Array.isArray(z.products)||!Array.isArray(z.sales))throw 0;if(confirm('استبدال البيانات الحالية؟')){localStorage.setItem(KEY,JSON.stringify(z));d=load();render();alert('تم الاسترجاع')}}catch{alert('الملف غير صالح')}e.target.value=''};r.readAsText(f)}
