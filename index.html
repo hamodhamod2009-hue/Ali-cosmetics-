@@ -2101,79 +2101,77 @@ function applyLang(){document.documentElement.lang=currentLang;document.document
 
 function applyRole(){
 
-  if(currentRole==='employee'){
+  const isEmployee = currentRole === 'employee';
 
-    // العامل يفتح على المبيعات مباشرة
+  if(isEmployee){
 
     tab('sales');
 
-    // إخفاء كل أقسام التنقل عن العامل ما عدا المبيعات والخروج
-
-    document.querySelectorAll('nav button, .nav button').forEach(b=>{
-
-      const oc=b.getAttribute('onclick')||'';
-
-      const allowed=
-
-        oc.includes("tab('sales')") ||
-
-        oc.includes('tab("sales")') ||
-
-oc.includes('location.reload()');
-
-      b.classList.toggle('hidden-role',!allowed);
-
-    });
-
-    // داخل سجل الفواتير: العامل يشوف تفاصيل الفاتورة فقط
-
-    document.querySelectorAll('.row-actions button').forEach(b=>{
-
-      const oc=b.getAttribute('onclick')||'';
-
-      const allowed=oc.includes('viewSaleDetails');
-
-      b.classList.toggle('hidden-role',!allowed);
-
-    });
-
-  }else{
-
-    // المدير يشوف الأقسام بصورة طبيعية
-
-    document.querySelectorAll('nav button, .nav button').forEach(b=>{
-
-      b.classList.remove('hidden-role');
-
-    });
-
-    document.querySelectorAll('.row-actions button').forEach(b=>{
-
-      b.classList.remove('hidden-role');
-
-    });
-
   }
 
-  // العناصر الخاصة بالمدير
+  // شريط الأقسام
 
-  document.querySelectorAll('.admin-only').forEach(e=>{
+  document.querySelectorAll('.nav button').forEach(b=>{
 
-    e.classList.toggle('hidden-role',currentRole!=='admin');
+    const oc = b.getAttribute('onclick') || '';
 
-  });
+    if(isEmployee){
 
-  // صلاحية الحذف
+      const allowed =
 
-  document.querySelectorAll('.danger').forEach(e=>{
+        oc.includes("tab('sales'") ||
 
-    if(currentRole!=='admin'&&!hasPerm('delete')){
+        oc.includes('tab("sales"') ||
 
-      e.classList.add('hidden-role');
+        oc.includes('location.reload()');
+
+      b.style.display = allowed ? '' : 'none';
 
     }else{
 
-      e.classList.remove('hidden-role');
+      b.style.display = '';
+
+    }
+
+  });
+
+  // أزرار سجل الفواتير
+
+  document.querySelectorAll('.row-actions button').forEach(b=>{
+
+    const oc = b.getAttribute('onclick') || '';
+
+    if(isEmployee){
+
+      b.style.display = oc.includes('viewSaleDetails') ? '' : 'none';
+
+    }else{
+
+      b.style.display = '';
+
+    }
+
+  });
+
+  // عناصر المدير فقط
+
+  document.querySelectorAll('.admin-only').forEach(e=>{
+
+    e.style.display = currentRole === 'admin' ? '' : 'none';
+
+  });
+
+  // أزرار الحذف
+
+  document.querySelectorAll('.danger').forEach(e=>{
+
+    if(currentRole !== 'admin' && !hasPerm('delete')){
+
+      e.style.display = 'none';
+
+    }else if(!isEmployee){
+
+      e.style.display = '';
 
     }
 
