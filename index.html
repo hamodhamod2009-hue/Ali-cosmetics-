@@ -602,29 +602,7 @@ function renderExpenses(){
 
 }
 
-  const rows=Array.isArray(d.expenses)?d.expenses:[];
 
-  $('expenseBody').innerHTML=rows
-
-    .slice()
-
-    .sort((a,b)=>String(b.date).localeCompare(String(a.date)))
-
-    .map(x=>`<tr>
-
-      <td>${x.date||''}</td>
-
-      <td>${x.name||''}</td>
-
-      <td>${Number(x.amount||0).toLocaleString()} IQD</td>
-
-      <td>${x.note||''}</td>
-
-      <td><button class="danger" onclick="deleteExpense(${x.id})">حذف</button></td>
-
-    </tr>`).join('');
-
-}
 
 function deleteExpense(id){
 
