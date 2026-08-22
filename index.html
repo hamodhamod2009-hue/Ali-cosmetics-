@@ -2103,13 +2103,35 @@ function applyRole(){
 
   if(currentRole==='employee'){
 
+    // العامل يفتح على المبيعات مباشرة
+
     tab('sales');
 
-document.querySelectorAll('nav button, .nav button').forEach(b=>{
+    // إخفاء كل أقسام التنقل عن العامل ما عدا المبيعات والخروج
+
+    document.querySelectorAll('nav button, .nav button').forEach(b=>{
 
       const oc=b.getAttribute('onclick')||'';
 
-      const allowed=oc.includes("tab('sales')") || oc.includes('logout()');
+      const allowed=
+
+        oc.includes("tab('sales')") ||
+
+        oc.includes('tab("sales")') ||
+
+        oc.includes('logout()');
+
+      b.classList.toggle('hidden-role',!allowed);
+
+    });
+
+    // داخل سجل الفواتير: العامل يشوف تفاصيل الفاتورة فقط
+
+    document.querySelectorAll('.row-actions button').forEach(b=>{
+
+      const oc=b.getAttribute('onclick')||'';
+
+      const allowed=oc.includes('viewSaleDetails');
 
       b.classList.toggle('hidden-role',!allowed);
 
@@ -2117,21 +2139,43 @@ document.querySelectorAll('nav button, .nav button').forEach(b=>{
 
   }else{
 
-document.querySelectorAll('nav button, .nav button').forEach(b=>b.classList.remove('hidden-role'));
+    // المدير يشوف الأقسام بصورة طبيعية
+
+    document.querySelectorAll('nav button, .nav button').forEach(b=>{
+
+      b.classList.remove('hidden-role');
+
+    });
+
+    document.querySelectorAll('.row-actions button').forEach(b=>{
+
+      b.classList.remove('hidden-role');
+
+    });
 
   }
 
-  document.querySelectorAll('.admin-only').forEach(e=>
+  // العناصر الخاصة بالمدير
 
-    e.classList.toggle('hidden-role',currentRole!=='admin')
+  document.querySelectorAll('.admin-only').forEach(e=>{
 
-  );
+    e.classList.toggle('hidden-role',currentRole!=='admin');
+
+  });
+
+  // صلاحية الحذف
 
   document.querySelectorAll('.danger').forEach(e=>{
 
-    if(currentRole!=='admin'&&!hasPerm('delete')) e.classList.add('hidden-role');
+    if(currentRole!=='admin'&&!hasPerm('delete')){
 
-    else e.classList.remove('hidden-role');
+      e.classList.add('hidden-role');
+
+    }else{
+
+      e.classList.remove('hidden-role');
+
+    }
 
   });
 
