@@ -642,7 +642,13 @@ if(id!=='home'&&id!=='users'&&!hasPerm(id)){
     .forEach(x=>$(x).classList.add('hidden'));
 
   $(id).classList.remove('hidden');
+if(id==='users' && currentRole==='admin'){
 
+  $('users').classList.remove('hidden-role');
+
+  $('users').style.display='block';
+
+}
   document.querySelectorAll('.nav button')
 
     .forEach(x=>x.classList.remove('active'));
