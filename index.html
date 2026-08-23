@@ -33,8 +33,8 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <body>
 <div id="login" class="card"><div class="top-tools" style="justify-content:flex-end"><button type="button" onclick="toggleLang()" id="loginLangBtn">English</button></div>
 <h1>&nbsp;</h1><p class="muted">نظام البراندات والآيتمات والمخزون والمبيعات والديون</p>
-<label>اسم المستخدم</label><input id="u" value="admin">
-<label>كلمة المرور</label><input id="pw" type="password" value="admin123">
+<label>اسم المستخدم</label><input id="u" autocomplete="off">
+<label>كلمة المرور</label><input id="pw" type="password" autocomplete="new-password">
 <button onclick="doLogin()">تسجيل الدخول</button>
   <p id="err" style="color:#b91c1c;font-weight:bold"></p>
 <p class="muted">بيانات المدير: admin / admin123<br>بيانات الموظف: employee / 1234</p>
