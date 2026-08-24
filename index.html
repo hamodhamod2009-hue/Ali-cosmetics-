@@ -2427,7 +2427,7 @@ function render(){
 $('spick').innerHTML=d.products.filter(p=>!p.archived&&p.q>0).map(p=>`<option value="${p.id}">${p.n}</option>`).join('');
 const brands=[...new Set(d.products.filter(p=>!p.archived&&String(p.brand||'').trim()).map(p=>String(p.brand).trim()))];
 
-$('purchaseBrand').innerHTML=brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
+$('purchaseBrand').innerHTML='<option value="">اختر البراند</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');
   $('saleBrand').innerHTML='<option value="">اختر البراند</option>'+brands.map(b=>`<option value="${esc(b)}">${esc(b)}</option>`).join('');updateSaleItems();updateSaleItems();renderPurchases();renderSales();renderDebts();renderPayments();renderSuppliers();renderSupplierReport();renderReports();renderUsers();previewSale();previewPurchase();applyRole();applyLang()
 }
 
