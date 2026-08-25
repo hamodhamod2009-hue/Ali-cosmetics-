@@ -58,8 +58,8 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 
 <section id="home">
 <div class="stats">
-<div class="card"><div class="muted">Products</div><div id="sp" class="stat">0</div></div>
-<div class="card"><div class="muted">Total stock</div><div id="stockQty" class="stat">0</div></div>
+<div class="card"><div class="muted">عدد المنتجات</div><div id="sp" class="stat">0</div></div>
+<div class="card"><div class="muted">إجمالي المخزون</div><div id="stockQty" class="stat">0</div></div>
 <div class="card"><div class="muted">عمليات البيع</div><div id="ss" class="stat">0</div></div>
 <div class="card"><div class="muted">ديون الزبائن</div><div id="homeDebt" class="stat dangerText">0</div></div>
 <div class="card"><div class="muted">المطلوب للتجار</div><div id="homeSupplierDebt" class="stat dangerText">0</div></div>
@@ -462,7 +462,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div class="stats">
 <div class="card"><div class="muted">إجمالي المبيعات</div><div id="rRevenue" class="stat">0</div></div>
 <div class="card"><div class="muted">تكلفة البضاعة</div><div id="rCost" class="stat">0</div></div>
-<div class="card"><div class="muted">صافي الربح</div><div id="rProfit" class="stat goodText">0</div></div>
+<div class="card"><div class="muted">ربح المبيعات</div><div id="rSalesProfit" class="stat goodText">0</div></div><div class="card"><div class="muted">إجمالي المصاريف</div><div id="rExpenses" class="stat dangerText">0</div></div><div class="card"><div class="muted">صافي الربح بعد المصاريف</div><div id="rProfit" class="stat goodText">0</div></div>
 <div class="card"><div class="muted">المبالغ المستلمة</div><div id="rReceived" class="stat goodText">0</div></div>
 <div class="card"><div class="muted">المبالغ المتبقية</div><div id="rRemaining" class="stat dangerText">0</div></div>
 <div class="card"><div class="muted">القطع المباعة</div><div id="rQty" class="stat">0</div></div>
@@ -2232,7 +2232,7 @@ function renderReports(){
 
   const netProfit=salesProfit-expenseTotal;
 
-  $('rProfit').textContent=num(netProfit)+' IQD';
+$('rSalesProfit').textContent=num(salesProfit)+' IQD';$('rExpenses').textContent=num(expenseTotal)+' IQD';$('rProfit').textContent=num(netProfit)+' IQD';
 
   $('rReceived').textContent=byCurrency(r,'paid');
 
