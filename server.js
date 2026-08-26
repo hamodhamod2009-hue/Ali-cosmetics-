@@ -6,6 +6,7 @@ const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 pool.query('SELECT 1').then(() => console.log('Postgres connected')).catch(err => console.error('Postgres connection error:', err.message));
+pool.query(`CREATE TABLE IF NOT EXISTS app_data (id INTEGER PRIMARY KEY, data JSONB NOT NULL DEFAULT '{}'::jsonb)`).then(() => console.log('app_data table ready')).catch(err => console.error('Table create error:', err.message));
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
 
