@@ -7,6 +7,9 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 pool.query('SELECT 1').then(() => console.log('Postgres connected')).catch(err => console.error('Postgres connection error:', err.message));
 pool.query(`CREATE TABLE IF NOT EXISTS app_data (id INTEGER PRIMARY KEY, data JSONB NOT NULL DEFAULT '{}'::jsonb)`).then(() => console.log('app_data table ready')).catch(err => console.error('Table create error:', err.message));
+function readJson(req){return new Promise((resolve,reject)=>{let body='';req.on('data',c=>body+=c);req.on('end',()=>{try{resolve(body?JSON.parse(body):{});}catch(e){reject(e);}});req.on('error',reject);});}
+async function getAppData(){const r=await pool.query('SELECT data FROM app_data WHERE id=1');return r.rows[0]?.data||null;}
+async function saveAppData(data){await pool.query('INSERT INTO app_data (id,data) VALUES (1,$1::jsonb) ON CONFLICT (id) DO UPDATE SET data=EXCLUDED.data',[JSON.stringify(data)]);}
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
 
