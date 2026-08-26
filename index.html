@@ -903,6 +903,15 @@ function sale(){
     return;
 
   }
+if(!customerPhone){
+
+  $('sm').textContent='رقم الهاتف إجباري';
+
+  $('customerPhone').focus();
+
+  return;
+
+}  
 
   if(!saleItems.length){
 
@@ -1783,7 +1792,7 @@ const used=Math.max(0,Number(x.usedCredit||0));
   printWindow(`كشف حساب التاجر - ${name}`,body);
 
 }
-function printCustomerStatement(name){const sales=d.sales.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase()),payments=d.payments.filter(x=>(x.customerName||'').trim().toLowerCase()===name.trim().toLowerCase());const body=`<p>إجمالي المبيعات: <b>${byCurrency(sales,'total')}</b> — المدفوع: <b>${byCurrency(sales,'paid')}</b> — المتبقي: <b>${byCurrency(sales,'remaining')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>المنتج</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th></tr>${sales.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>الفاتورة</th><th>المبلغ</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>#${x.invoiceNo}</td><td>${money(x.amount,x.cur)}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب الزبون - ${name}`,body)}
+function printCustomerStatement(phone){const p=String(phone||'').trim(),sales=d.sales.filter(x=>String(x.customerPhone||'').trim()===p),saleIds=new Set(sales.map(x=>x.id)),payments=d.payments.filter(x=>saleIds.has(x.saleId)),name=sales[0]?.customerName||'';const body=`<p><b>الزبون:</b> ${esc(name)} — <b>الهاتف:</b> ${esc(p)}</p><p>إجمالي المبيعات: <b>${byCurrency(sales,'total')}</b> — المدفوع: <b>${byCurrency(sales,'paid')}</b> — المتبقي: <b>${byCurrency(sales,'remaining')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>المنتج</th><th>الإجمالي</th><th>المدفوع</th><th>المتبقي</th></tr>${sales.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.paid,x.cur)}</td><td>${money(x.remaining,x.cur)}</td></tr>`).join('')}</table><h2>الدفعات</h2><table><tr><th>التاريخ</th><th>الفاتورة</th><th>المبلغ</th></tr>${payments.map(x=>`<tr><td>${fmtDate(new Date(x.iso))}</td><td>#${x.invoiceNo}</td><td>${money(x.amount,x.cur)}</td></tr>`).join('')}</table>`;printWindow(`كشف حساب الزبون - ${name} - ${p}`,body)}
 function printCurrentReport(){if(!hasPerm('reports')){alert('ليس لديك صلاحية للتقارير');return}const r=reportSales(),body=`<p>${esc($('reportCaption').textContent)}</p><p>المبيعات: <b>${byCurrency(r,'total')}</b> — التكلفة: <b>${byCurrency(r,'cost')}</b> — الربح: <b>${byCurrency(r,'profit')}</b></p><table><tr><th>الفاتورة</th><th>التاريخ</th><th>الزبون</th><th>المنتج</th><th>المبيعات</th><th>الربح</th></tr>${r.map(x=>`<tr><td>#${x.invoiceNo}</td><td>${esc(x.t)}</td><td>${esc(x.customerName)}</td><td>${esc((x.brand?x.brand+' - ':'')+x.n)}</td><td>${money(x.total,x.cur)}</td><td>${money(x.profit,x.cur)}</td></tr>`).join('')}</table>`;printWindow('تقرير المبيعات والأرباح',body)}
 
 function setSupplierDate(){if(!$('supplierDate'))return;const today=ymd(new Date());if(!$('supplierDate').value)$('supplierDate').value=today}
@@ -2047,7 +2056,7 @@ function addSupplierPayment(id){
     purchaseId:x.purchaseId||null,
 
     name:x.name,
-
+phone:x.phone||'',
     invoiceNo:purchase?purchase.invoiceNo||'':'',
 
     amount,
@@ -2291,6 +2300,7 @@ function renderSales(){
     String(s.invoiceNo).includes(q)||
 
     (s.customerName||'').toLowerCase().includes(q)||
+    (s.customerPhone||'').toLowerCase().includes(q)||
 
     (s.n||'').toLowerCase().includes(q)||
 
@@ -2338,7 +2348,7 @@ function renderSales(){
 ${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">تعديل الفاتورة</button>`:''}
           ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
 
-          <button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerName)}'))">كشف الزبون</button>
+<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerPhone||'')}'))">كشف الزبون</button>
 
           ${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}
 
