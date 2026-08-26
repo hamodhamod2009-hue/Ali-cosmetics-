@@ -35,7 +35,7 @@ function send(res, status, body, type = 'text/plain; charset=utf-8') {
   res.end(body);
 }
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
 
   if (url.pathname === '/health') {
