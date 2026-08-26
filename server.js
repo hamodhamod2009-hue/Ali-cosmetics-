@@ -1,7 +1,11 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const { Pool } = require('pg');
 
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+
+pool.query('SELECT 1').then(() => console.log('Postgres connected')).catch(err => console.error('Postgres connection error:', err.message));
 const PORT = Number(process.env.PORT) || 3000;
 const ROOT = __dirname;
 
