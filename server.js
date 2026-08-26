@@ -41,7 +41,8 @@ const server = http.createServer((req, res) => {
   if (url.pathname === '/health') {
     return send(res, 200, JSON.stringify({ ok: true, app: 'Ali Cosmetics' }), 'application/json; charset=utf-8');
   }
-
+if (url.pathname === '/api/data' && req.method === 'GET') { const data = await getAppData(); return send(res, 200, JSON.stringify(data || {}), 'application/json; charset=utf-8'); }
+  if (url.pathname === '/api/data' && req.method === 'POST') { const data = await readJson(req); await saveAppData(data); return send(res, 200, JSON.stringify({ok:true}), 'application/json; charset=utf-8'); }
   let pathname;
   try { pathname = decodeURIComponent(url.pathname); }
   catch { return send(res, 400, 'Bad request'); }
