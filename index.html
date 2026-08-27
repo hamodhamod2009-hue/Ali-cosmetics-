@@ -2075,6 +2075,10 @@ function addSupplierPayment(id){
   }
 
   const note=prompt('ملاحظة للدفعة (اختياري):')||'';
+  const methodRaw=prompt('طريقة الدفع: اكتب Cash أو Bank Transfer','Cash');
+  const method=(methodRaw||'Cash').trim()==='Bank Transfer'?'Bank Transfer':'Cash';
+  const bankRef=method==='Bank Transfer'?(prompt('مرجع التحويل البنكي:','')||'').trim():'';
+  if(method==='Bank Transfer'&&!bankRef){alert('اكتب مرجع التحويل البنكي');return;}
 
   x.paid=Number(x.paid||0)+amount;
 
@@ -2104,8 +2108,8 @@ function addSupplierPayment(id){
 
   d.supplierPayments.unshift({
     receiptNo:'SP-'+Date.now(),
-    paymentMethod:'Cash',
-bankReference:'',
+paymentMethod:method,
+bankReference:bankRef,
     direction:'Out',
     transactionType:'Payment',
     balanceAfter:x.remaining,
