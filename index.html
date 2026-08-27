@@ -1676,6 +1676,11 @@ function printSupplierStatement(name){
     (x.name||'').trim().toLowerCase()===key
 
   );
+  const purchases=d.purchases.filter(x=>
+
+  (x.name||'').trim().toLowerCase()===key
+
+);
 
   const creditCreated=debts.reduce((sum,x)=>
 
@@ -1760,7 +1765,55 @@ const used=Math.max(0,Number(x.usedCredit||0));
       }).join('')}
 
     </table>
+<h2>البضاعة المشتراة من التاجر</h2>
 
+<table>
+
+<tr>
+
+<th>التاريخ</th>
+
+<th>رقم فاتورة التاجر</th>
+
+<th>البراند</th>
+
+<th>الكمية</th>
+
+<th>سعر القطعة</th>
+
+<th>الإجمالي</th>
+
+<th>المدفوع نقداً</th>
+
+<th>رصيد مستخدم</th>
+
+<th>المتبقي</th>
+
+</tr>
+
+${purchases.map(x=>`<tr>
+
+<td>${esc(x.date||'')}</td>
+
+<td>${esc(x.invoiceNo||'-')}</td>
+
+<td>${esc(x.brand||'-')}</td>
+
+<td>${num(x.q)}</td>
+
+<td>${money(x.unitCost,x.cur)}</td>
+
+<td>${money(x.total,x.cur)}</td>
+
+<td>${money(x.cashPaid||0,x.cur)}</td>
+
+<td>${money(x.usedCredit||0,x.cur)}</td>
+
+<td>${money(x.remaining||0,x.cur)}</td>
+
+</tr>`).join('')||'<tr><td colspan="9">لا توجد مشتريات مسجلة لهذا التاجر</td></tr>'}
+
+</table>
     <h2>الدفعات النقدية</h2>
 
     <table>
