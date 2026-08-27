@@ -686,7 +686,7 @@ function addProduct(){
  const duplicate=d.products.some(p=>!p.archived&&(p.brand||'').trim().toLowerCase()===brand.toLowerCase()&&(p.n||'').trim().toLowerCase()===n.toLowerCase()&&(p.code||'').trim().toLowerCase()===code.toLowerCase());
  if(duplicate&&!confirm('هذا الآيتم موجود داخل نفس البراند. هل تريد إضافته مرة ثانية؟'))return;
  d.products.push({id:Date.now(),brand,n,code,barcode,c,b,s,wholesaleSell,q,minStock,cur:$('cur').value,archived:false});
- ['brand','name','itemCode','barcode','cat','buy','sell','wholesaleSell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة الآيتم داخل البراند';save()
+['brand','name','itemCode','barcode','cat','buy','sell','wholesaleSell','qty'].forEach(x=>$(x).value='');$('pm').textContent='تمت إضافة الآيتم داخل البراند';save();render();
 }
 function delProduct(id){
  if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}
