@@ -1329,8 +1329,8 @@ function addPurchase(){
   const unitCost=Number($('purchaseUnitCost').value);
 
 const cashPaid=Number($('purchasePaid').value||0);
-
-
+const paymentMethod='Cash';
+const bankReference='';
 let paid=cashPaid;
 
   const cur='IQD';
@@ -1525,9 +1525,18 @@ credit,
 if(cashPaid>0){
 
     d.supplierPayments.unshift({
-
+      receiptNo:'SP-'+Date.now(),
+      paymentMethod:'Cash',
+bankReference:'',
+   direction:'Out',   
       id:id+2,
-
+      transactionType:'Payment',
+      balanceAfter:remaining,
+invoiceNo:invoiceNo,
+      dateTime:new Date().toISOString(),
+      status:'Active',
+      reversedBy:null,
+      reversalOf:null,
       debtId:remaining>0?id+1:null,
 
       purchaseId:id,
@@ -2094,9 +2103,21 @@ function addSupplierPayment(id){
   }
 
   d.supplierPayments.unshift({
-
+    receiptNo:'SP-'+Date.now(),
+    paymentMethod:'Cash',
+bankReference:'',
+    direction:'Out',
+    transactionType:'Payment',
+    balanceAfter:x.remaining,
+    invoiceNo:purchase?.invoiceNo||'',
+    dateTime:new Date().toISOString(),
+    status:'Active',
+    reversedBy:null,
+    reversalOf:null,
+    note,
+amount:amount,
     id:Date.now(),
-
+currency:x.cur||'IQD',
     debtId:x.id,
 
     purchaseId:x.purchaseId||null,
@@ -2203,23 +2224,24 @@ function payPurchase(id){
   }
 
   d.supplierPayments.unshift({
-
-    id:Date.now(),
-
-    debtId:debt?.id||null,
-
+receiptNo:'SP-'+Date.now(),
+    paymentMethod:'Cash',
+    bankReference:'',
+    direction:'Out',
+    transactionType:'Payment',
+    balanceAfter:p.remaining,
+    dateTime:new Date().toISOString(),
+    status:'Active',
+    reversedBy:null,
+    reversalOf:null,
+    amount:amount,
+    currency:p.cur||'IQD',
+    phone:p.phone||'',
     purchaseId:p.id,
-
-    name:p.name,
-
-    invoiceNo:p.invoiceNo||'',
-
-    amount,
-
-    cur:p.cur,
-
-    iso:new Date().toISOString(),
-
+id:Date.now(),
+name:p.name,
+invoiceNo:p.invoiceNo||'',
+    debtId:debt?.id||null,
     note:note||`دفعة على فاتورة ${p.invoiceNo||'-'}`
 
   });
