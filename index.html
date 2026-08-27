@@ -513,7 +513,7 @@ x.purchases=Array.isArray(x.purchases)?x.purchases:[];x.expenses=Array.isArray(x
    return {...s,id:s.id||Date.now()+i,invoiceNo:Number(s.invoiceNo)||1001+i,iso,q,total,unitBuy,cost,profit,cur:s.cur||'IQD',customerName:s.customerName||'زبون قديم',customerPhone:s.customerPhone||'',paid,remaining:Math.max(0,total-paid),dueDate:s.dueDate||'',note:s.note||'',customerType:s.customerType||'retail'};
   });
   if(!x.payments.length){x.sales.forEach(s=>{if(s.paid>0)x.payments.push({id:s.id+1,saleId:s.id,invoiceNo:s.invoiceNo,customerName:s.customerName,amount:s.paid,cur:s.cur,iso:s.iso,note:'دفعة مسجلة من النسخة السابقة'})})}
-  const maxInv=x.sales.reduce((m,s)=>Math.max(m,Number(s.invoiceNo)||0),1000);x.nextInvoice=Math.max(Number(x.nextInvoice)||1001,maxInv+1);
+const maxInv=x.sales.reduce((m,s)=>Math.max(m,Number(s.invoiceNo)||0),1000);x.nextInvoice=Math.max(Number(x.nextInvoice)||1001,maxInv+1);return x;
 }catch{return {products:[],sales:[],payments:[],supplierDebts:[],supplierPayments:[],purchases:[],expenses:[],users:[{id:2,username:'employee',password:'1234',displayName:'موظف',perms:['sales','debts','payments']}],nextInvoice:1001}}
 }
 function save(){localStorage.setItem(KEY,JSON.stringify(d));try{const bk=JSON.parse(localStorage.getItem(KEY+'_snapshots')||'[]');bk.unshift({at:new Date().toISOString(),data:d});localStorage.setItem(KEY+'_snapshots',JSON.stringify(bk.slice(0,10)))}catch{}render()}
