@@ -1823,7 +1823,7 @@ ${purchases.map(x=>`<tr>
       <tr>
 
         <th>التاريخ</th>
-
+<th>رقم السند</th>
         <th>المبلغ</th>
         <th>طريقة الدفع</th>
         <th>مرجع التحويل البنكي</th>
@@ -1835,6 +1835,7 @@ ${purchases.map(x=>`<tr>
       ${payments.map(x=>`<tr>
 
         <td>${fmtDate(new Date(x.iso))}</td>
+<td>${esc(x.receiptNo||'-')}</td>
 
         <td>${money(x.amount,x.cur)}</td>
         <td>${esc(x.paymentMethod||'Cash')}</td>
