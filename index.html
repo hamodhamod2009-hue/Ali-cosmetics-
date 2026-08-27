@@ -181,13 +181,6 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 
 </div>
 
-<div>
-
-  <label>رقم فاتورة التاجر</label>
-
-  <input id="supplierInvoiceNo">
-
-</div>
 
 <div>
 
@@ -1346,7 +1339,7 @@ let paid=cashPaid;
 
   const due=$('purchaseDue').value;
 
-  const invoiceNo=$('supplierInvoiceNo').value.trim();
+const invoiceNo=String(Math.max(1000,...d.purchases.map(x=>Number(x.invoiceNo)||0))+1);
 
   const note=$('purchaseNote').value.trim();
 
@@ -1569,7 +1562,7 @@ amount:cashPaid,
 
   $('purchaseDue').value='';
 
-  $('supplierInvoiceNo').value='';
+
 
   $('purchaseNote').value='';
 
