@@ -151,7 +151,8 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 
 <input id="purchasePaid" type="number" min="0" step="0.01" value="0" oninput="previewPurchase()">
 
-</div>
+</div> 
+    <div><label>طريقة الدفع</label><select id="purchasePaymentMethod" onchange="$('purchaseBankReferenceWrap').classList.toggle('hidden',this.value!=='Bank Transfer');if(this.value!=='Bank Transfer')$('purchaseBankReference').value=''"><option value="Cash">Cash</option><option value="Bank Transfer">Bank Transfer</option></select></div><div id="purchaseBankReferenceWrap" class="hidden"><label>مرجع التحويل البنكي</label><input id="purchaseBankReference" placeholder="أدخل مرجع التحويل"></div>  
 
 <div>
 
@@ -1329,8 +1330,9 @@ function addPurchase(){
   const unitCost=Number($('purchaseUnitCost').value);
 
 const cashPaid=Number($('purchasePaid').value||0);
-const paymentMethod='Cash';
-const bankReference='';
+const paymentMethod=$('purchasePaymentMethod').value;
+
+const bankReference=$('purchaseBankReference').value.trim();if(cashPaid>0&&paymentMethod==='Bank Transfer'&&!bankReference){$('purchaseMsg').textContent='مرجع التحويل البنكي مطلوب';$('purchaseBankReference').focus();return}
 let paid=cashPaid;
 
   const cur='IQD';
