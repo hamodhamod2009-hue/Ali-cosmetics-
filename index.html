@@ -418,6 +418,8 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div><label>رقم الهاتف <span class="req">*</span></label><input id="supplierPhone" inputmode="tel" required></div>
 <div><label>المبلغ الأصلي <span class="req">*</span></label><input id="supplierAmount" type="number" min="0.01" step=".01"></div>
 <div><label>المدفوع أولاً</label><input id="supplierPaid" type="number" min="0" step=".01" value="0"></div>
+  <div><label>طريقة الدفع</label><select id="supplierPaymentMethod"><option value="Cash">Cash</option><option value="Bank Transfer">Bank Transfer</option></select></div>
+  <div><label>مرجع التحويل البنكي</label><input id="supplierBankReference" placeholder="مطلوب عند Bank Transfer"></div>
 <div><label>العملة</label><select id="supplierCur"><option selected>IQD</option><option>USD</option><option>AUD</option></select></div>
 <div><label>تاريخ الدين</label><input id="supplierDate" type="date"></div>
 <div><label>تاريخ الاستحقاق</label><input id="supplierDue" type="date"></div>
@@ -1887,7 +1889,7 @@ function addSupplierDebt(){
         due=$('supplierDue').value,
 
         note=$('supplierNote').value.trim();
-
+const paymentMethod=$('supplierPaymentMethod').value, bankReference=$('supplierBankReference').value.trim();
 if(!name || !phone || !Number.isFinite(amount) || amount<=0 ||
 
    !Number.isFinite(cashPaid) || cashPaid<0){
@@ -1898,12 +1900,12 @@ alert('تحقق من اسم التاجر ورقم الهاتف والمبلغ و
     return;
 
   }
-
-  const key=name.trim().toLowerCase();
+if(paymentMethod==='Bank Transfer' && !bankReference){alert('أدخل مرجع التحويل البنكي');return;}
+const key=String(phone||'').replace(/\s+/g,'').trim();
 
   const oldCredits=d.supplierDebts.filter(x=>
 
-    (x.name||'').trim().toLowerCase()===key &&
+String(x.phone||'').replace(/\s+/g,'').trim()===key &&
 
     String(x.cur||'IQD').toUpperCase()===String(cur||'IQD').toUpperCase() &&
 
@@ -2018,9 +2020,12 @@ alert('تحقق من اسم التاجر ورقم الهاتف والمبلغ و
       debtId:id,
 
       name,
-
+phone,
+      receiptNo:'SP-'+Date.now(),
+      transactionType:'Payment',
       amount:cashPaid,
-
+      balanceAfter:remaining,
+paymentMethod:paymentMethod, bankReference:paymentMethod==='Bank Transfer'?bankReference:'',
       cur,
 
       iso:new Date(date+'T12:00:00').toISOString(),
@@ -2031,12 +2036,12 @@ alert('تحقق من اسم التاجر ورقم الهاتف والمبلغ و
 
   }
 
-  ['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote']
+['supplierName','supplierPhone','supplierAmount','supplierDue','supplierNote','supplierBankReference']
 
     .forEach(x=>$(x).value='');
 
   $('supplierPaid').value=0;
-
+$('supplierPaymentMethod').value='Cash';
   $('supplierMsg').textContent=
 
     usedCredit>0
