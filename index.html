@@ -115,9 +115,9 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 
       <div>
 
-        <label>رقم الهاتف</label>
+<label>رقم الهاتف <span class="req">*</span></label>
 
-        <input id="purchasePhone" inputmode="tel">
+<input id="purchasePhone" inputmode="tel" required>
 
       </div>
 
@@ -415,7 +415,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <section id="suppliers" class="hidden">
 <div class="card"><h2>إضافة حساب تاجر</h2><p class="muted">هذا القسم مستقل عن الزبائن والمبيعات، ويسجل المبالغ التي يطلبها التجار من المحل.</p><div class="grid">
 <div><label>اسم التاجر <span class="req">*</span></label><input id="supplierName"></div>
-<div><label>رقم الهاتف</label><input id="supplierPhone" inputmode="tel"></div>
+<div><label>رقم الهاتف <span class="req">*</span></label><input id="supplierPhone" inputmode="tel" required></div>
 <div><label>المبلغ الأصلي <span class="req">*</span></label><input id="supplierAmount" type="number" min="0.01" step=".01"></div>
 <div><label>المدفوع أولاً</label><input id="supplierPaid" type="number" min="0" step=".01" value="0"></div>
 <div><label>العملة</label><select id="supplierCur"><option selected>IQD</option><option>USD</option><option>AUD</option></select></div>
@@ -1345,9 +1345,9 @@ const invoiceNo=String(Math.max(1000,...d.purchases.map(x=>Number(x.invoiceNo)||
 
   const note=$('purchaseNote').value.trim();
 
-  if(!name || !brand || !Number.isInteger(q) || q<1 || !Number.isFinite(unitCost) || unitCost<0){
+if(!name || !phone || !brand || !Number.isInteger(q) || q<1 || !Number.isFinite(unitCost) || unitCost<0){
 
-    $('purchaseMsg').textContent='تحقق من اسم التاجر والبراند والكمية وسعر الشراء';
+$('purchaseMsg').textContent='تحقق من اسم التاجر ورقم الهاتف والبراند والكمية وسعر الشراء';
 
     return;
 
@@ -1888,11 +1888,12 @@ function addSupplierDebt(){
 
         note=$('supplierNote').value.trim();
 
-  if(!name || !Number.isFinite(amount) || amount<=0 ||
+if(!name || !phone || !Number.isFinite(amount) || amount<=0 ||
 
-     !Number.isFinite(cashPaid) || cashPaid<0){
+   !Number.isFinite(cashPaid) || cashPaid<0){
 
-    alert('تحقق من البيانات');
+
+alert('تحقق من اسم التاجر ورقم الهاتف والمبلغ والمدفوع');
 
     return;
 
