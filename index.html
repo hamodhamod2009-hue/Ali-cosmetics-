@@ -267,7 +267,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div>
 
 <div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
-<div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div>
+<div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div><div><label>طريقة الدفع</label><select id="salePaymentMethod" onchange="$('saleBankReferenceWrap').classList.toggle('hidden',this.value!=='Bank Transfer');if(this.value!=='Bank Transfer')$('saleBankReference').value=''"><option value="Cash">Cash</option><option value="Bank Transfer">Bank Transfer</option></select></div><div id="saleBankReferenceWrap" class="hidden"><label>مرجع التحويل البنكي</label><input id="saleBankReference" placeholder="أدخل مرجع التحويل"></div>
 <div><label>تاريخ استحقاق الدين</label><input id="dueDate" type="date"></div>
 <div><label>ملاحظات</label><input id="saleNote" placeholder="اختياري"></div>
 <button id="addSaleItemBtn" type="button" onclick="addSaleItem()">+ إضافة آيتم للفاتورة</button>
@@ -882,7 +882,7 @@ function sale(){
   const dt=new Date($('saleDate').value);
 
   const paidRaw=Number($('paidNow').value);
-
+const paymentMethod=$('salePaymentMethod').value,bankReference=$('saleBankReference').value.trim();if(paidRaw>0&&paymentMethod==='Bank Transfer'&&!bankReference){$('sm').textContent='مرجع التحويل البنكي مطلوب';$('saleBankReference').focus();return}
   const dueDate=$('dueDate').value;
 
   const note=$('saleNote').value.trim();
@@ -1109,7 +1109,7 @@ if(oldSale)d.payments=d.payments.filter(x=>x.saleId!==oldSale.id);
 
       iso:dt.toISOString(),
 
-      note:'دفعة عند تسجيل الفاتورة'
+receiptNo:`CP-${id+1}`,transactionType:'Payment',balanceAfter:Math.max(0,total-paidRaw),paymentMethod,bankReference,note:'دفعة عند تسجيل الفاتورة'
 
     });
 
@@ -1119,7 +1119,7 @@ if(oldSale)d.payments=d.payments.filter(x=>x.saleId!==oldSale.id);
   ['customerName','customerPhone','saleNote'].forEach(x=>$(x).value='');
 
   $('paidNow').value=0;
-
+$('salePaymentMethod').value='Cash';$('saleBankReference').value='';$('saleBankReferenceWrap').classList.add('hidden');
 
 
   $('dueDate').value='';
