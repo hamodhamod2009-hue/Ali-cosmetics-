@@ -1490,7 +1490,7 @@ credit,
 
   });
 
-if(remaining>0 || credit>0){
+if(total>0 || remaining>0 || credit>0){
 
   d.supplierDebts.unshift({
 
@@ -1528,8 +1528,9 @@ if(cashPaid>0){
 
     d.supplierPayments.unshift({
       receiptNo:'SP-'+Date.now(),
-      paymentMethod:'Cash',
-bankReference:'',
+paymentMethod,
+
+bankReference,
    direction:'Out',   
       id:id+2,
       transactionType:'Payment',
