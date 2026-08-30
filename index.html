@@ -2226,7 +2226,7 @@ const methodRaw=prompt('طريقة الدفع: اكتب Cash أو Bank Transfer'
 
   p.credit=Math.max(0,p.paid-Number(p.total));
 
-  const debt=d.supplierDebts.find(x=>x.purchaseId===id);
+let debt=d.supplierDebts.find(x=>x.purchaseId===id);if(!debt&&p.remaining>0){debt={id:Date.now()+1,purchaseId:p.id,name:p.name,phone:p.phone||'',amount:Number(p.total)||0,paid:Number(p.paid)||0,cashPaid:Number(p.cashPaid)||0,usedCredit:Number(p.usedCredit)||0,remaining:Number(p.remaining)||0,credit:Number(p.credit)||0,cur:p.cur||'IQD',date:p.date||'',due:p.due||'',invoiceNo:p.invoiceNo||'',note:p.note||''};d.supplierDebts.unshift(debt);}
 
   if(debt){
 
