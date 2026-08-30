@@ -262,7 +262,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <section id="sales" class="hidden">
 <div class="card"><h2>تسجيل بيع جديد</h2><div class="grid">
 <div><label>اسم الزبون <span class="req">*</span></label><input id="customerName" placeholder="إجباري"></div>
-<div><label>رقم الهاتف</label><input id="customerPhone" inputmode="tel" placeholder="اختياري"></div>
+<div><label>رقم الهاتف <span class="req">*</span></label><input id="customerPhone" inputmode="tel" required placeholder="إجباري"></div>
 <div><label>نوع الزبون</label><select id="customerType" onchange="previewSale()"><option value="retail">زبون محل</option><option value="wholesale">زبون تاجر</option></select></div>
   <div><label>البراند</label><select id="saleBrand" onchange="updateSaleItems()"></select></div>
 <div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div>
