@@ -1542,7 +1542,7 @@ invoiceNo:invoiceNo,
       status:'Active',
       reversedBy:null,
       reversalOf:null,
-      debtId:remaining>0?id+1:null,
+debtId:(remaining>0||credit>0)?id+1:null,
 
       purchaseId:id,
 
