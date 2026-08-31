@@ -1843,7 +1843,7 @@ ${purchases.map(x=>`<tr>
 
       ${payments.map(x=>`<tr>
 
-        <td>${fmtDate(new Date(x.iso))}</td>
+<td>${fmtDate(new Date(x.iso||x.dateTime))}</td>
 <td>${esc(x.receiptNo||'-')}</td>
 <td>${esc(x.transactionType||'Payment')}</td>
         <td>${money(x.amount,x.cur)}</td>
