@@ -1374,42 +1374,8 @@ creditLeft-=use;
 
   
 
-);
-const usedCredit=Math.min(
+  
 
-  availableCredit,
-
-  Math.max(total-cashPaid,0)
-
-);
-
-paid=cashPaid+usedCredit;
-
-let creditLeft=usedCredit;
-
-oldCredits.forEach(x=>{
-
-  if(creditLeft<=0)return;
-
-  const use=Math.min(Number(x.credit||0),creditLeft);
-
-  x.credit=Math.max(0,Number(x.credit||0)-use);
-
-  const oldDebt=d.supplierDebts.find(
-
-    s=>s.purchaseId===x.id || s.purchaseId===x.purchaseId
-
-  );
-
-  if(oldDebt){
-
-    oldDebt.credit=Math.max(0,Number(oldDebt.credit||0)-use);
-
-  }
-
-  creditLeft-=use;
-
-});
   
 
 if(paid<0){
