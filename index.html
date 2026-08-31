@@ -1763,7 +1763,7 @@ const used=Math.max(0,Number(x.usedCredit||0));
 
           <td>${money(x.amount,x.cur)}</td>
 
-          <td>${money(x.paid,x.cur)}</td>
+<td>${money(Math.min(Math.max(0,Number(x.amount||0)-Number(used||0)),Number(cashForDebt||0)),x.cur)}</td>
 
           <td>${money(used,x.cur)}</td>
 
