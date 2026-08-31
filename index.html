@@ -1814,7 +1814,7 @@ ${purchases.map(x=>`<tr>
 
 <td>${money(x.total,x.cur)}</td>
 
-<td>${money(x.paid||0,x.cur)}</td>
+<td>${money(Math.min(Number(x.total||0),Math.max(0,Number(x.paid||0)-Number(x.usedCredit||0))),x.cur)}</td>
 
 <td>${money(x.usedCredit||0,x.cur)}</td>
 
