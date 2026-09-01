@@ -1261,7 +1261,7 @@ const cur=$('purchaseCur').value;
 
 const name=$('purchaseSupplier').value.trim();
 const phone=$('purchasePhone').value.replace(/\s+/g,'').trim();
-const availableCredit=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===phone&&String(x.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase()).reduce((s,x)=>s+Math.max(0,Number(x.credit||0)),0);
+const availableCredit=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===phone&&String(x.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase()).reduce((s,x)=>s+Math.max(0,Number((x.credit===undefined||x.credit===null)?Math.max(Number(x.paid||0)-Number(x.amount||0),0):x.credit)||0),0);
 
 const usedCredit=Math.min(availableCredit,Math.max(total-cashPaid,0));
 
