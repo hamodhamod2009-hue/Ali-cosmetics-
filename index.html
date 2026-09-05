@@ -1338,7 +1338,7 @@ $('purchaseMsg').textContent='تحقق من اسم التاجر ورقم اله�
 const total=q*unitCost;
 const norm=v=>String(v||'').replace(/\s+/g,'').trim().toLowerCase();
 
-const oldCredits=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===String(phone||'').replace(/\s+/g,'').trim()&&String(x.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase()&&Number(x.credit||0)>0);
+const oldCredits=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===String(phone||'').replace(/\s+/g,'').trim()&&String(x.cur||'IQD').trim().toUpperCase()===String(cur||'IQD').trim().toUpperCase());
 oldCredits.forEach(p=>{
 if(p.credit===undefined || p.credit===null){
 p.credit=Math.max(Number(p.paid||0)-Number(p.amount||0),0);
