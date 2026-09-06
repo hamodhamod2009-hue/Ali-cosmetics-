@@ -715,7 +715,7 @@ function currentSaleValues(){
 
         type=$('customerType')?.value||'retail',
 
-        unit=p?(type==='wholesale'?Number(p.wholesaleSell||p.s):Number(p.s||0)):0,
+unit=p?(type==='wholesale'?Number(p.wholesaleSell||p.s):Number(p.s||0)):0,
 
         total=p?q*unit:0,
 
@@ -987,7 +987,7 @@ if(oldSale&&Array.isArray(oldSale.items)){
 }
 const id=oldSale?oldSale.id:Date.now();
 
-const invoiceNo=oldSale?oldSale.invoiceNo:d.nextInvoice++;
+const invoiceNo=oldSale?oldSale.invoiceNo:d.nextInvoice;
   const items=saleItems.map(x=>{
 
     const p=d.products.find(p=>p.id===x.productId);
@@ -1093,6 +1093,7 @@ if(oldSale){
   d.sales.unshift(s);
 
 }
+  if(!oldSale)d.nextInvoice++;
 if(oldSale)d.payments=d.payments.filter(x=>x.saleId!==oldSale.id);
   if(paidRaw>0){
 
