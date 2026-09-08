@@ -1237,6 +1237,7 @@ function delSale(id){
     d.sales=d.sales.filter(x=>x.id!==id);
 
     d.payments=d.payments.filter(x=>x.saleId!==id);
+    d.supplierPayments=d.supplierPayments.filter(x=>String(x.saleId||'')!==String(id));
 
     save();
 
