@@ -1117,6 +1117,7 @@ customerPhone,
 receiptNo:`CP-${id+1}`,transactionType:'Payment',balanceAfter:Math.max(0,total-paidRaw),paymentMethod,bankReference,note:'دفعة عند تسجيل الفاتورة'
 
     });
+    const supplierPhone=String(customerPhone||'').replace(/\s+/g,'').trim();let supplierCredit=paidRaw;if(supplierPhone&&supplierCredit>0){const supplierRows=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===supplierPhone&&Number(x.remaining||0)>0);supplierRows.forEach(x=>{if(supplierCredit<=0)return;const used=Math.min(Number(x.remaining||0),supplierCredit);x.paid=Number(x.paid||0)+used;x.remaining=Math.max(0,Number(x.amount||0)-Number(x.paid||0));supplierCredit-=used;});}
 
   } 
    $('sm').textContent=`تم تسجيل الفاتورة رقم ${invoiceNo}`;
@@ -1616,7 +1617,7 @@ function renderPurchases(){
   }).join('')||'<tr><td colspan="12">لا توجد مشتريات</td></tr>';
 
 }
-function printWindow(title,body){const w=window.open('','_blank');if(!w){alert('اسمح بالنوافذ المنبثقة للطباعة');return}w.document.write(`<html dir="rtl"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:8px;text-align:right}h1{margin-top:0}</style></head><body><h1>${esc(title)}</h1>${body}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
+function printWindow(title,body){const w=window.open('','_blank');if(!w){alert(currentLang==='en'?'Allow pop-up windows for printing':'اسمح بالنوافذ المنبثقة للطباعة');return}const isEn=currentLang==='en',dir=isEn?'ltr':'rtl',align=isEn?'left':'right';w.document.write(`<html lang="${isEn?'en':'ar'}" dir="${dir}"><head><meta charset="utf-8"><title>${esc(title)}</title><style>body{font-family:Arial;padding:24px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #bbb;padding:8px;text-align:${align}}h1{margin-top:0}</style></head><body><h1>${esc(title)}</h1>${body}<script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close()}
 function printSupplierStatement(name){
 
   const key=name.trim().toLowerCase();
@@ -1658,37 +1659,37 @@ const creditUsed=Math.max(0,creditCreated-creditRemaining);
 
     <p>
 
-      إجمالي الحساب: <b>${byCurrency(debts,'amount')}</b>
+${currentLang==='en'?'Total Account':'إجمالي الحساب'}: <b>${byCurrency(debts,'amount')}</b>
 
-المدفوع: <b>${byCurrency(payments,'amount')}</b>
+${currentLang==='en'?'Paid':'المدفوع'}: <b>${byCurrency(payments,'amount')}</b>
 
-      — الرصيد الذي نشأ: <b>${money(creditCreated,'IQD')}</b>
+${currentLang==='en'?'Credit Created':'الرصيد الذي نشأ'}: <b>${money(creditCreated,'IQD')}</b> -
 
-      — الرصيد المستخدم: <b>${money(creditUsed,'IQD')}</b>
+${currentLang==='en'?'Credit Used':'الرصيد المستخدم'}: <b>${money(creditUsed,'IQD')}</b> -
 
-      — الرصيد المتبقي لنا: <b>${money(creditRemaining,'IQD')}</b>
+${currentLang==='en'?'Our Remaining Credit':'الرصيد المتبقي لنا'}: <b>${money(creditRemaining,'IQD')}</b> -
 
-      — المطلوب للتاجر: <b>${byCurrency(debts,'remaining')}</b>
+${currentLang==='en'?'Amount Owed to Supplier':'المطلوب للتاجر'}: <b>${byCurrency(debts,'remaining')}</b>
 
     </p>
 
-    <h2>الحسابات</h2>
+<h2>${currentLang==='en'?'Accounts':'الحسابات'}</h2>
 
     <table>
 
       <tr>
 
-        <th>التاريخ</th>
+<th>${currentLang==='en'?'Date':'التاريخ'}</th>
 
-        <th>التفاصيل</th>
+<th>${currentLang==='en'?'Details':'التفاصيل'}</th>
 
-        <th>الأصلي</th>
+<th>${currentLang==='en'?'Original Amount':'الأصلي'}</th>
 
-<th>المسدد من الحساب</th>
+<th>${currentLang==='en'?'Paid from Account':'المسدد من الحساب'}</th>
 
-        <th>رصيد مستخدم</th>
+<th>${currentLang==='en'?'Credit Used':'رصيد مستخدم'}</th>
 
-        <th>المتبقي</th>
+<th>${currentLang==='en'?'Remaining':'المتبقي'}</th>
 
       </tr>
 
@@ -1721,29 +1722,29 @@ const used=Math.max(0,Number(x.usedCredit||0));
       }).join('')}
 
     </table>
-<h2>البضاعة المشتراة من التاجر</h2>
+<h2>${currentLang==='en'?'Goods Purchased from Supplier':'البضاعة المشتراة من التاجر'}</h2>
 
 <table>
 
 <tr>
 
-<th>التاريخ</th>
+<th>${currentLang==='en'?'Date':'التاريخ'}</th>
 
-<th>رقم فاتورة التاجر</th>
+<th>${currentLang==='en'?'Supplier Invoice No.':'رقم فاتورة التاجر'}</th>
 
-<th>البراند</th>
+<th>${currentLang==='en'?'Brand':'البراند'}</th>
 
-<th>الكمية</th>
+<th>${currentLang==='en'?'Quantity':'الكمية'}</th>
 
-<th>سعر القطعة</th>
+<th>${currentLang==='en'?'Unit Price':'سعر القطعة'}</th>
 
-<th>الإجمالي</th>
+<th>${currentLang==='en'?'Total':'الإجمالي'}</th>
 
-<th>المدفوع</th>
+<th>${currentLang==='en'?'Paid':'المدفوع'}</th>
 
-<th>رصيد مستخدم</th>
+<th>${currentLang==='en'?'Credit Used':'الرصيد المستخدم'}</th>
 
-<th>المتبقي</th>
+<th>${currentLang==='en'?'Remaining':'المتبقي'}</th>
 
 </tr>
 
