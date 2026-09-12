@@ -1234,7 +1234,7 @@ function delSale(id){
       if(p)p.q+=Number(s.q)||0;
 
     }
-
+(d.supplierPayments||[]).filter(p=>String(p.saleId||'')===String(id)&&p.transactionType==='Customer Payment').forEach(p=>{const x=(d.supplierDebts||[]).find(y=>String(y.id)===String(p.supplierId))||(d.supplierDebts||[]).find(y=>String(y.phone||'').replace(/\s+/g,'').trim()===String(p.phone||'').replace(/\s+/g,'').trim());if(x){x.paid=Math.max(0,Number(x.paid||0)-Number(p.amount||0));x.remaining=Math.max(0,Number(x.amount||0)-Number(x.paid||0));}});
     d.sales=d.sales.filter(x=>x.id!==id);
 
     d.payments=d.payments.filter(x=>x.saleId!==id);
