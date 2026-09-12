@@ -1117,7 +1117,7 @@ customerPhone,
 receiptNo:`CP-${id+1}`,transactionType:'Payment',balanceAfter:Math.max(0,total-paidRaw),paymentMethod,bankReference,note:'دفعة عند تسجيل الفاتورة'
 
     });
-    const supplierPhone=String(customerPhone||'').replace(/\s+/g,'').trim();let supplierCredit=paidRaw;if(supplierPhone&&supplierCredit>0){const supplierRows=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===supplierPhone&&Number(x.remaining||0)>0);supplierRows.forEach(x=>{if(supplierCredit<=0)return;const used=Math.min(Number(x.remaining||0),supplierCredit);x.paid=Number(x.paid||0)+used;x.remaining=Math.max(0,Number(x.amount||0)-Number(x.paid||0));supplierCredit-=used;});}
+const supplierPhone=String(customerPhone||'').replace(/\s+/g,'').trim();let supplierCredit=paidRaw;if(supplierPhone&&supplierCredit>0){const supplierRows=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()===supplierPhone&&Number(x.remaining||0)>0);supplierRows.forEach(x=>{if(supplierCredit<=0)return;const used=Math.min(Number(x.remaining||0),supplierCredit);x.paid=Number(x.paid||0)+used;x.remaining=Math.max(0,Number(x.amount||0)-Number(x.paid||0));supplierCredit-=used;const supplierName=x.name||'';const spNow=Date.now();d.supplierPayments.unshift({id:spNow,supplierId:x.id,name:supplierName,supplierName,phone:x.phone||supplierPhone,amount:used,cur:x.cur||cur||'IQD',iso:new Date(spNow).toISOString(),receiptNo:'SP-'+spNow,transactionType:'Customer Payment',balanceAfter:x.remaining,paymentMethod,bankReference,note:'Customer invoice #'+invoiceNo,saleId:id});});}
 
   } 
    $('sm').textContent=`تم تسجيل الفاتورة رقم ${invoiceNo}`;
