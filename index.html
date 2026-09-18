@@ -1769,24 +1769,24 @@ ${purchases.map(x=>`<tr>
 
 <td>${money(x.remaining||0,x.cur)}</td>
 
-</tr>`).join('')||'<tr><td colspan="9">لا توجد مشتريات مسجلة لهذا التاجر</td></tr>'}
+</tr>`).join('')||(currentLang==='en'?'<tr><td colspan="9">No purchases recorded for this supplier</td></tr>':'<tr><td colspan="9">لا توجد مشتريات مسجلة لهذا التاجر</td></tr>')}
 
 </table>
-<h2>الدفعات</h2>
+<h2>${currentLang==='en'?'Payments':'الدفعات'}</h2>
 
     <table>
 
       <tr>
 
-        <th>التاريخ</th>
-<th>رقم السند</th>
-<th>نوع الحركة</th>
-        <th>المبلغ</th>
-                <th>الرصيد بعد الحركة</th>
-        <th>طريقة الدفع</th>
-        <th>مرجع التحويل البنكي</th>
+<th>${currentLang==='en'?'Date':'التاريخ'}</th>
+<th>${currentLang==='en'?'Receipt No.':'رقم السند'}</th>
+<th>${currentLang==='en'?'Transaction':'نوع الحركة'}</th>
+<th>${currentLang==='en'?'Amount':'المبلغ'}</th>
+<th>${currentLang==='en'?'Balance After':'الرصيد بعد الحركة'}</th>
+<th>${currentLang==='en'?'Payment Method':'طريقة الدفع'}</th>
+<th>${currentLang==='en'?'Bank Reference':'مرجع التحويل البنكي'}</th>
 
-        <th>ملاحظة</th>
+<th>${currentLang==='en'?'Note':'ملاحظة'}</th>
 
       </tr>
 
