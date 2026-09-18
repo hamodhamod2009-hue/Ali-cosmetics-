@@ -2390,13 +2390,13 @@ function renderSales(){
 
         <div class="row-actions">
 
-          <button class="blue" onclick="viewSaleDetails(${s.id})">تفاصيل الفاتورة</button>
-${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">تعديل الفاتورة</button>`:''}
-          ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">دفعة</button>`:''}
+<button class="blue" onclick="viewSaleDetails(${s.id})">${currentLang==='en'?'Invoice Details':'تفاصيل الفاتورة'}</button>
+${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">${currentLang==='en'?'Edit Invoice':'تعديل الفاتورة'}</button>`:''}
+${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">${currentLang==='en'?'Payment':'دفعة'}</button>`:''}
 
-<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerPhone||'')}'))">كشف الزبون</button>
+<button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerPhone||'')}'))">${currentLang==='en'?'Customer Statement':'كشف الزبون'}</button>
 
-          ${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">حذف</button>`:''}
+${hasPerm('delete')?`<button class="danger" onclick="delSale(${s.id})">${currentLang==='en'?'Delete':'حذف'}</button>`:''}
 
         </div>
 
