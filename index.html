@@ -701,13 +701,39 @@ function delProduct(id){
  else if(confirm('حذف المنتج نهائياً؟')){d.products=d.products.filter(x=>x.id!==id);save()}
 }
 function editProductPrices(id){
- if(!hasPerm('editPrices')){alert('ليس لديك صلاحية لتغيير الأسعار');return}
- const p=d.products.find(x=>x.id===id);if(!p)return;
- const retail=prompt('سعر بيع زبون المحل:',p.s);if(retail===null)return;
- const wholesale=prompt('سعر بيع التاجر:',p.wholesaleSell??p.s);if(wholesale===null)return;
- const r=Number(retail),w=Number(wholesale);
- if(!Number.isFinite(r)||!Number.isFinite(w)||r<=Number(p.b)||w<=Number(p.b)){alert('سعر البيع يجب أن يكون أعلى من سعر الشراء');return}
- p.s=r;p.wholesaleSell=w;save();alert('تم تحديث الأسعار')
+
+if(!hasPerm('editPrices')){alert('ليس لديك صلاحية لتعديل الآيتم');return}
+
+const p=d.products.find(x=>x.id==id);if(!p)return;
+
+const brand=prompt('اسم البراند',p.brand||'');if(brand===null)return;
+
+const name=prompt('اسم الآيتم',p.n||'');if(name===null)return;
+
+const code=prompt('كود الآيتم',p.code||'');if(code===null)return;
+
+const barcode=prompt('الباركود',p.barcode||'');if(barcode===null)return;
+
+const cat=prompt('التصنيف',p.c||'');if(cat===null)return;
+
+const qty=prompt('الكمية',p.q);if(qty===null)return;
+
+const minStock=prompt('حد التنبيه للمخزون',p.minStock||0);if(minStock===null)return;
+
+const buy=prompt('سعر الشراء',p.b);if(buy===null)return;
+
+const retail=prompt('سعر بيع المحل',p.s);if(retail===null)return;
+
+const wholesale=prompt('سعر بيع التاجر',p.wholesaleSell??p.s);if(wholesale===null)return;
+
+const cur=prompt('العملة',p.cur||'IQD');if(cur===null)return;
+
+const q=Number(qty),ms=Number(minStock),b=Number(buy),r=Number(retail),w=Number(wholesale);
+
+if(!brand.trim()||!name.trim()||!Number.isInteger(q)||q<0||!Number.isFinite(ms)||ms<0||!Number.isFinite(b)||b<0||!Number.isFinite(r)||!Number.isFinite(w)||r<b||w<b){alert('تأكد من البيانات: الكمية رقم صحيح والأسعار صحيحة وسعر البيع لا يقل عن سعر الشراء');return}
+
+p.brand=brand.trim();p.n=name.trim();p.code=code.trim();p.barcode=barcode.trim();p.c=cat.trim();p.q=q;p.minStock=ms;p.b=b;p.s=r;p.wholesaleSell=w;p.cur=cur.trim()||'IQD';save();alert('تم تحديث الآيتم')
+
 }
 function currentSaleValues(){
 
