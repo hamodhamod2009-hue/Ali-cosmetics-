@@ -871,13 +871,42 @@ el.innerHTML=saleItems.map((x,i)=>
 
 `<div>
 
-${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} = ${money(x.total,d.cur)}
+${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} × ${money(Number(x.unit||x.unitSell||0),d.cur)} = ${money(x.total,d.cur)} ${currentRole==='admin'&&editingSaleId?`<button type="button" onclick="editSaleItemPrice(${i})">تعديل السعر</button>`:''}
 
 <button type="button" onclick="decreaseSaleItem(${i})">− إنقاص</button>
 
 </div>`
 
 ).join('');
+}
+    function editSaleItemPrice(i){
+
+  if(currentRole!=='admin'||!editingSaleId)return;
+
+  const x=saleItems[i];
+
+  if(!x)return;
+
+  const oldPrice=Number(x.unit||x.unitSell||0);
+
+  const raw=prompt('السعر الخاص لهذه الفاتورة',oldPrice);
+
+  if(raw===null)return;
+
+  const price=Number(raw);
+
+  if(!Number.isFinite(price)||price<0){alert('أدخل سعر صحيح');return;}
+
+  x.unit=price;
+
+  x.unitSell=price;
+
+  x.total=Number(x.q||0)*price;
+
+  renderSaleItems();
+
+  previewSale();
+
 }
     function decreaseSaleItem(i){
 
