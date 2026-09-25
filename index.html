@@ -266,7 +266,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div><label>رقم الهاتف <span class="req">*</span></label><input id="customerPhone" inputmode="tel" required placeholder="إجباري"></div>
 <div><label>نوع الزبون</label><select id="customerType" onchange="previewSale()"><option value="retail">زبون محل</option><option value="wholesale">زبون تاجر</option></select></div>
   <div><label>البراند</label><select id="saleBrand" onchange="updateSaleItems()"></select></div>
-<div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div><div><label>الكمية</label><input id="saleQty" type="number" min="1" step="1" value="1" oninput="previewSale()"></div>
+<div><label>الآيتم والعدد المتوفر</label><select id="spick" onchange="previewSale()"></select></div>
 
 <div><label>تاريخ ووقت البيع</label><input id="saleDate" type="datetime-local"></div>
 <div><label>المبلغ المدفوع الآن</label><input id="paidNow" type="number" min="0" step=".01" value="0" oninput="previewSale()"></div><div><label>طريقة الدفع</label><select id="salePaymentMethod" onchange="$('saleBankReferenceWrap').classList.toggle('hidden',this.value!=='Bank Transfer');if(this.value!=='Bank Transfer')$('saleBankReference').value=''"><option value="Cash">Cash</option><option value="Bank Transfer">Bank Transfer</option></select></div><div id="saleBankReferenceWrap" class="hidden"><label>مرجع التحويل البنكي</label><input id="saleBankReference" placeholder="أدخل مرجع التحويل"></div>
@@ -739,7 +739,7 @@ function currentSaleValues(){
 
   const p=d.products.find(x=>x.id==Number($('spick').value)),
 
-q=Math.max(1,Math.floor(Number($('saleQty')?.value)||1)),
+q=1,
 
         type=$('customerType')?.value||'retail',
 
@@ -844,7 +844,7 @@ if(existing.q+v.q>Number(v.p.q)+editOldQty){
     });
 
   }
-$('saleQty').value=1;
+
 renderSaleItems();
 
 previewSale();
@@ -872,12 +872,35 @@ el.innerHTML=saleItems.map((x,i)=>
 `<div>
 
 ${i+1}. ${esc(x.brand?x.brand+' - ':'')}${esc(x.name)} × ${x.q} × ${money(Number(x.unit||x.unitSell||0),d.cur)} = ${money(x.total,d.cur)} ${currentRole==='admin'&&editingSaleId?`<button type="button" onclick="editSaleItemPrice(${i})">تعديل السعر</button>`:''}
-
+<input type="number" min="1" max="${d.products.find(p=>p.id===x.productId)?.q||x.q}" value="${x.q}" onchange="setSaleItemQty(${i},this.value)" style="width:90px;margin:6px" title="الكمية">
 <button type="button" onclick="decreaseSaleItem(${i})">− إنقاص</button>
 
 </div>`
 
 ).join('');
+}
+    function setSaleItemQty(i,value){
+
+  const x=saleItems[i];
+
+  if(!x)return;
+
+  const p=d.products.find(p=>p.id===x.productId);
+
+  const maxQty=Number(p?.q||0)+(editingSaleId?Number((d.sales.find(s=>s.id===editingSaleId)?.items||[]).find(a=>a.productId===x.productId)?.q||0):0);
+
+  const q=Math.floor(Number(value));
+
+  if(!Number.isFinite(q)||q<1||q>maxQty){alert('الكمية غير صحيحة أو أكبر من المتوفر');renderSaleItems();return;}
+
+  x.q=q;
+
+  x.total=x.q*Number(x.unit||x.unitSell||0);
+
+  renderSaleItems();
+
+  previewSale();
+
 }
     function editSaleItemPrice(i){
 
