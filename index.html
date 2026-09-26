@@ -1685,7 +1685,7 @@ function renderPurchases(){
         <div class="row-actions">
 
           ${remaining>0?`<button class="good" onclick="payPurchase(${x.id})">تسديد دفعة</button>`:''}
-
+${hasPerm('purchases')?`<button type="button" onclick="editPurchase(${x.id})">تعديل فاتورة</button>`:''}
           ${hasPerm('delete')?`<button class="danger" onclick="deletePurchase(${x.id})">حذف</button>`:''}
 
         </div>
@@ -2316,6 +2316,57 @@ invoiceNo:p.invoiceNo||'',
     alert(`تم تسجيل الدفعة. التاجر يطلبك ${money(p.remaining,p.cur)}`);
 
   }
+
+}
+    function editPurchase(id){
+
+  if(!hasPerm('purchases')){alert('ليس لديك صلاحية تعديل فاتورة الشراء');return;}
+
+  const p=d.purchases.find(x=>x.id===id);
+
+  if(!p)return;
+
+  const raw=prompt('أدخل سعر شراء القطعة الجديد:',Number(p.buy||0));
+
+  if(raw===null)return;
+
+  const newBuy=Number(raw);
+
+  if(!Number.isFinite(newBuy)||newBuy<0){alert('سعر الشراء غير صحيح');return;}
+
+  const oldTotal=Number(p.total||0);
+
+  const newTotal=Number(p.q||0)*newBuy;
+
+  const difference=newTotal-oldTotal;
+
+  p.buy=newBuy;
+
+  p.total=newTotal;
+
+  p.remaining=Math.max(0,Number(p.remaining||0)+difference);
+
+  p.credit=Math.max(0,Number(p.paid||0)-newTotal);
+
+  const debt=d.supplierDebts.find(x=>x.purchaseId===p.id);
+
+  if(debt){
+
+    debt.amount=newTotal;
+
+    debt.remaining=Math.max(0,Number(debt.remaining||0)+difference);
+
+    debt.credit=Math.max(0,Number(debt.paid||0)-newTotal);
+
+  }
+
+  save();
+
+  renderPurchases();
+
+  renderSuppliers();
+
+  alert('تم تعديل سعر فاتورة الشراء');
 
 }
 function deleteSupplierDebt(id){if(!hasPerm('delete')){alert('ليس لديك صلاحية للحذف');return}const r=d.supplierDebts.find(x=>x.id===id)||d.purchases.find(x=>x.id===id);if(!r)return;const phone=String(r.phone||'').replace(/\s+/g,'').trim();if(confirm('حذف حساب التاجر وكل بياناته المرتبطة؟')){if(phone){d.supplierDebts=d.supplierDebts.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()!==phone);d.supplierPayments=d.supplierPayments.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()!==phone);d.purchases=d.purchases.filter(x=>String(x.phone||'').replace(/\s+/g,'').trim()!==phone)}else{d.supplierDebts=d.supplierDebts.filter(x=>x.id!==id);d.supplierPayments=d.supplierPayments.filter(x=>x.debtId!==id&&x.purchaseId!==id);d.purchases=d.purchases.filter(x=>x.id!==id)}save();renderSuppliers()}}
