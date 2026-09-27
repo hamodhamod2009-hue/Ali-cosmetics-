@@ -2097,11 +2097,11 @@ function addSupplierPayment(id){
 
   }
 
-  const x=d.supplierDebts.find(v=>v.id===id);
+const x=d.supplierDebts.find(v=>v.id===id),supplierKey=x?String(x.phone||'').replace(/\s+/g,'').trim():'',supplierRows=x?d.supplierDebts.filter(v=>String(v.phone||'').replace(/\s+/g,'').trim()===supplierKey):[];
 
-  if(!x || Number(x.remaining)<=0)return;
+if(!x || supplierRows.reduce((s,v)=>s+Number(v.remaining||0),0)<=0)return;
 
-  const oldRemaining=Number(x.remaining||0);
+const oldRemaining=supplierRows.reduce((s,v)=>s+Number(v.remaining||0),0);
 
   const raw=prompt(
 
@@ -2127,13 +2127,13 @@ function addSupplierPayment(id){
   const bankRef=method==='Bank Transfer'?(prompt('مرجع التحويل البنكي:','')||'').trim():'';
   if(method==='Bank Transfer'&&!bankRef){alert('اكتب مرجع التحويل البنكي');return;}
 
-  x.paid=Number(x.paid||0)+amount;
+let paymentLeft=Math.min(amount,oldRemaining);
 
-  x.remaining=Math.max(0,Number(x.amount||0)-x.paid);
 
-  x.credit=Math.max(0,x.paid-Number(x.amount||0));
 
-  if(x.remaining===0)x.due='';
+
+
+for(const debt of supplierRows){if(paymentLeft<=0)break;const take=Math.min(paymentLeft,Number(debt.remaining||0));debt.paid=Number(debt.paid||0)+take;debt.remaining=Math.max(0,Number(debt.amount||0)-debt.paid);if(debt.remaining===0)debt.due='';paymentLeft-=take;}
 
   const purchase=x.purchaseId
 
@@ -2326,7 +2326,7 @@ invoiceNo:p.invoiceNo||'',
 
   if(!p)return;
 
-  const raw=prompt('أدخل سعر شراء القطعة الجديد:',Number(p.buy||0));
+const raw=prompt('ادخل سعر شراء القطعة الجديد:',Number(p.unitCost||0));
 
   if(raw===null)return;
 
@@ -2334,17 +2334,17 @@ invoiceNo:p.invoiceNo||'',
 
   if(!Number.isFinite(newBuy)||newBuy<0){alert('سعر الشراء غير صحيح');return;}
 
-  const oldTotal=Number(p.total||0);
+
 
   const newTotal=Number(p.q||0)*newBuy;
 
-  const difference=newTotal-oldTotal;
 
-  p.buy=newBuy;
+
+p.unitCost=newBuy;
 
   p.total=newTotal;
 
-  p.remaining=Math.max(0,Number(p.remaining||0)+difference);
+p.remaining=Math.max(0,newTotal-Number(p.paid||0));
 
   p.credit=Math.max(0,Number(p.paid||0)-newTotal);
 
@@ -2354,7 +2354,7 @@ invoiceNo:p.invoiceNo||'',
 
     debt.amount=newTotal;
 
-    debt.remaining=Math.max(0,Number(debt.remaining||0)+difference);
+debt.remaining=Math.max(0,newTotal-Number(debt.paid||0));
 
     debt.credit=Math.max(0,Number(debt.paid||0)-newTotal);
 
