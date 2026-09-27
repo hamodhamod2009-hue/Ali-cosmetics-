@@ -441,6 +441,7 @@ body.employee-mode .row-actions button[onclick*="viewSaleDetails"]{display:inlin
 <div><button onclick="renderSupplierReport()">عرض التقرير</button></div>
 <div><button class="blue" onclick="clearSupplierRange()">كل الفترات</button></div>
   <div><button class="danger" onclick="clearTestSupplierPayments()">حذف دفعات الاختبار</button></div>
+  <div><button class="danger" onclick="resetAllBusinessData()">تصفير جميع البيانات والبدء من جديد</button></div>
 </div><div class="stats">
 <div class="card"><div class="muted">المدفوع ضمن الفترة</div><div id="supplierReportPaid" class="stat goodText">0</div></div>
 <div class="card"><div class="muted">عدد الدفعات</div><div id="supplierReportCount" class="stat">0</div></div>
@@ -2405,6 +2406,7 @@ function renderSupplierReport(){if(!$('supplierPaymentBody'))return;const rows=s
     
     
     function clearTestSupplierPayments(){if(!confirm('حذف دفعات الاختبار فقط؟'))return;d.supplierPayments=d.supplierPayments.filter(x=>!String(x.name||'').toUpperCase().startsWith('TEST'));save();renderSupplierReport();alert('تم حذف دفعات الاختبار')}
+    function resetAllBusinessData(){if(!confirm('تحذير: سيتم حذف جميع الفواتير والمنتجات والمخزون والحسابات والدفعات والمصاريف نهائياً. هل أنت متأكد؟'))return;if(!confirm('تأكيد أخير: هل تريد فعلاً تصفير جميع بيانات العمل والبدء من جديد؟'))return;d.products=[];d.sales=[];d.payments=[];d.supplierDebts=[];d.supplierPayments=[];d.purchases=[];d.expenses=[];d.nextInvoice=1001;save();render();alert('تم تصفير جميع بيانات العمل بنجاح');}
 function clearSupplierRange(){$('supplierFrom').value='';$('supplierTo').value='';renderSupplierReport()}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function num(n){return Number(n||0).toLocaleString('en-AU',{maximumFractionDigits:2})}
