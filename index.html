@@ -1263,7 +1263,7 @@ editingSaleId=null;
     ? s.items.map(item=>({
 
         productId:item.productId,
-
+name:item.name||item.n||d.products.find(p=>p.id==item.productId)?.n||'',
         q:Number(item.q)||0,
 
         unit:Number(item.unitSell)||0,
