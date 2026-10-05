@@ -1280,6 +1280,93 @@ name:item.name||item.n||d.products.find(p=>p.id==item.productId)?.n||'',
 
   $('customerName').scrollIntoView({behavior:'smooth',block:'center'});
     }
+    function editSalePrices(id){
+
+  if(!hasPerm('edit')) return;
+
+  const s=d.sales.find(x=>x.id===id);
+
+  if(!s || !Array.isArray(s.items) || !s.items.length) return;
+
+  const list=s.items.map((item,i)=>{
+
+    const p=d.products.find(x=>x.id==item.productId);
+
+    const name=item.name||item.n||(p?p.n:'')||'Item';
+
+    const brand=(p&&p.brand)||'';
+
+    return `${i+1}. ${brand} - ${name} | ${num(Number(item.unitSell)||0)}`;
+
+  }).join('\n');
+
+  const raw=prompt(
+
+    (currentLang==='en'
+
+      ? 'Choose item number to change its price:\n'
+
+      : 'اختر رقم الآيتم لتعديل سعره:\n') + list
+
+  );
+
+  if(raw===null) return;
+
+  const index=Number(raw)-1;
+
+  if(!Number.isInteger(index) || index<0 || index>=s.items.length){
+
+    alert(currentLang==='en'?'Invalid item number':'رقم الآيتم غير صحيح');
+
+    return;
+
+  }
+
+  const item=s.items[index];
+
+  const p=d.products.find(x=>x.id==item.productId);
+
+  const name=item.name||item.n||(p?p.n:'')||'Item';
+
+  const priceRaw=prompt(
+
+    currentLang==='en'
+
+      ? `New price for ${name}:`
+
+      : `السعر الجديد لـ ${name}:`,
+
+    Number(item.unitSell)||0
+
+  );
+
+  if(priceRaw===null) return;
+
+  const newPrice=Number(priceRaw);
+
+  if(!Number.isFinite(newPrice) || newPrice<0){
+
+    alert(currentLang==='en'?'Enter a valid price':'أدخل سعراً صحيحاً');
+
+    return;
+
+  }
+
+  item.unitSell=newPrice;
+
+  item.total=(Number(item.q)||0)*newPrice;
+
+  s.total=s.items.reduce((sum,x)=>sum+(Number(x.total)||0),0);
+
+  s.remaining=Math.max(0,Number(s.total)-Number(s.paid||0));
+
+  save();
+
+  renderSales();
+
+  alert(currentLang==='en'?'Invoice price updated':'تم تعديل سعر الفاتورة');
+
+}
 function delSale(id){
 
   if(!hasPerm('delete')){
@@ -2562,6 +2649,7 @@ function renderSales(){
 
 <button class="blue" onclick="viewSaleDetails(${s.id})">${currentLang==='en'?'Invoice Details':'تفاصيل الفاتورة'}</button>
 ${hasPerm('edit')?`<button class="blue" onclick="editSale(${s.id})">${currentLang==='en'?'Edit Invoice':'تعديل الفاتورة'}</button>`:''}
+${hasPerm('edit')?`<button class="blue" onclick="editSalePrices(${s.id})">${currentLang==='en'?'Edit Prices':'تعديل الأسعار'}</button>`:''}
 ${s.remaining>0?`<button class="good" onclick="addPayment(${s.id})">${currentLang==='en'?'Payment':'دفعة'}</button>`:''}
 
 <button class="blue" onclick="printCustomerStatement(decodeURIComponent('${encodeURIComponent(s.customerPhone||'')}'))">${currentLang==='en'?'Customer Statement':'كشف الزبون'}</button>
